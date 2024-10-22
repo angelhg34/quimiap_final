@@ -26,6 +26,7 @@ const UsuariosAdmin = () => {
   const [userTypeFilter, setUserTypeFilter] = useState('todos');
   const [showFilters, setShowFilters] = useState(false);
   const [allowLetters, setAllowLetters] = useState(false);
+  const [phoneError, setPhoneError] = useState('');
   const navigate = useNavigate();
   const filterMenuRef = useRef(null);
   
@@ -94,39 +95,64 @@ const handleNameKeyPress = (e) => {
   // Handle input changes
   const handleInputChange = (e) => {
     const { id, value } = e.target;
-
-    // Actualiza el estado del formulario
-    if (id === "tipo_doc") {
-        // Maneja el cambio en el tipo de documento
-        setFormData((prevData) => ({
-            ...prevData,
-            tipo_doc: value,
-            num_doc: '' // Resetea el campo de identificación
-        }));
-
-        // Verifica el tipo de documento seleccionado
-        if (value === "cedula de extranjería") {
-            setAllowLetters(true); // Permite letras y números
-        } else {
-            setAllowLetters(false); // Solo permite números para tarjeta y cédula
-        }
-    } else if (id === "num_doc") {
-        // Maneja el cambio en el campo de identificación
-        // Lógica para cédula (10 dígitos solo numéricos) y tarjeta (10 dígitos solo numéricos)
-        if ((formData.tipo_doc === "cedula de ciudadania" || formData.tipo_doc === "tarjeta de identidad") && /^[0-9]{0,10}$/.test(value)) {
-            setFormData((prevData) => ({ ...prevData, num_doc: value }));
-        } 
-        // Lógica para cédula de extranjería (10-12 caracteres alfanuméricos)
-        else if (formData.tipo_doc === "cedula de extranjería" && /^[a-zA-Z0-9]{0,12}$/.test(value) && value.length <= 12) {
-            setFormData((prevData) => ({ ...prevData, num_doc: value }));
-        }
-    } else {
         // Para otros campos, se actualiza normalmente
         setFormData({
             ...formData,
             [id]: value,
         });
-    }
+        const { name, value: targetValue } = e.target;
+
+        if (name === 'telefono') {
+            // Elimina cualquier carácter que no sea un número
+            const sanitizedValue = value.replace(/\D/g, '');
+    
+            // Si el valor tiene más de 10 dígitos, lo recorta
+            const limitedValue = sanitizedValue.slice(0, 10);
+    
+            if (limitedValue.length <= 10) {
+                setPhoneError(''); // Limpia el error si es válido
+                setFormData(prevFormData => ({
+                    ...prevFormData,
+                    [name]: limitedValue // Solo actualiza si es válido
+                }));
+            } else {
+                setPhoneError('El número de teléfono no debe tener más de 10 dígitos.');
+            }
+            return; // Se asegura que no pase al siguiente bloque
+        }
+
+};
+// Maneja el cambio en el tipo de documento
+const handleTipoDocChange = (event) => {
+  const { value } = event.target;
+
+  // Actualiza el estado del tipo de documento
+  setFormData((prevData) => ({
+      ...prevData,
+      tipo_doc: value,
+      num_doc: '' // Resetea el campo de identificación al cambiar el tipo de documento
+  }));
+
+  // Verifica el tipo de documento seleccionado
+  if (value === "cedula extranjería") {
+      setAllowLetters(true); // Permite letras y números
+  } else {
+      setAllowLetters(false); // Solo permite números para tarjeta y cédula
+  }
+};
+
+// Maneja el cambio en el campo de identificación
+const handleIdentificacionChange = (event) => {
+  const { value } = event.target;
+
+  // Lógica para cédula (10 dígitos solo numéricos) y tarjeta (10 dígitos solo numéricos)
+  if ((formData.tipo_doc === "cedula de ciudadania" || formData.tipo_doc === "tarjeta de identidad") && /^[0-9]{0,10}$/.test(value)) {
+      setFormData((prevData) => ({ ...prevData, num_doc: value }));
+  } 
+  // Lógica para cédula de extranjería (10-12 caracteres alfanuméricos)
+  else if (formData.tipo_doc === "cedula extranjeria" && /^[a-zA-Z0-9]{0,12}$/.test(value) && value.length <= 12) {
+      setFormData((prevData) => ({ ...prevData, num_doc: value }));
+  }
 };
 
 
@@ -288,8 +314,9 @@ const handleSetInactiveUser = async (id_usuario) => {
 
   if (confirmInactive.isConfirmed) {
       try {
+          // Llamar al procedimiento almacenado para cambiar el estado
           await axios.put(`http://localhost:4001/cambiarEstadoUsuario/${id_usuario}`, {
-              estado: 'inactivo'
+              estado: 'inactivo' // Cambiar a 'inactivo'
           });
 
           Swal.fire({
@@ -299,7 +326,7 @@ const handleSetInactiveUser = async (id_usuario) => {
               timer: 2000,
               showConfirmButton: false
           }).then(() => {
-              fetchUsers();
+              fetchUsers(); // Volver a cargar la lista de usuarios
           });
       } catch (error) {
           console.error('Error setting user inactive:', error);
@@ -475,7 +502,7 @@ const handleKeyPress = (e) => {
                     {/* Formulario de registro */}
                     <div className="mb-3">
                       <label htmlFor="tipo_doc" className="form-label">Tipo de Documento</label>
-                      <select className="form-select" id="tipo_doc" value={formData.tipo_doc} onChange={handleInputChange} required>
+                      <select className="form-select" id="tipo_doc" value={formData.tipo_doc} onChange={handleTipoDocChange} required>
                         <option value="" disabled>Selecciona una opción</option>
                         <option value="cedula extranjeria">CE</option>
                         <option value="tarjeta de identidad">TI</option>
@@ -484,7 +511,7 @@ const handleKeyPress = (e) => {
                         </div>
                     <div className="mb-3">
                       <label htmlFor="num_doc" className="form-label">Nº Identificación</label>
-                      <input type="number" className="form-control" id="num_doc" placeholder="Ingrese Nº Identificación" value={formData.num_doc} onChange={handleInputChange} required />
+                      <input type="number" className="form-control" id="num_doc" placeholder="Ingrese Nº Identificación" value={formData.num_doc} onChange={handleIdentificacionChange} required />
                     </div>
                     <div className="mb-3">
                       <label htmlFor="nombres" className="form-label">Nombres</label>
@@ -500,7 +527,8 @@ const handleKeyPress = (e) => {
                     </div>
                     <div className="mb-3">
                       <label htmlFor="telefono" className="form-label">Número Celular</label>
-                      <input type="number" className="form-control" id="telefono" placeholder="Ingrese Número Celular" value={formData.telefono} onChange={handleInputChange} required/>
+                      <input type="number" className="form-control" id="telefono" name="telefono" placeholder="Ingrese Número Celular" value={formData.telefono} onChange={handleInputChange} required/>
+                      {phoneError && <div className="error-message">{phoneError}</div>}
                     </div>
                     <div className="mb-3">
                       <label htmlFor="rol" className="form-label">Rol</label>

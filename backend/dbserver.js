@@ -27,7 +27,7 @@ app.use(express.json()); // Permite el parsing de JSON en las solicitudes
 const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'r1234',
+  password: 'root',
   database: 'quimiap'
 });
 
@@ -242,17 +242,17 @@ app.post('/login', (req, res) => {
       // Verifica si el usuario existe
       if (results.length === 0) {
           console.log('No se encontró el usuario con el correo proporcionado.');
-          return res.status(401).json({ success: false, message: 'Credenciales incorrectas.' });
+          return res.status(404).json({ success: false, message: 'El correo electrónico no está registrado.' });
       }
 
       const user = results[0];
       console.log('Usuario encontrado:', user);
 
-      // Verificar el estado de la cuenta
-      if (user.estado !== 'activo') {
-          console.log('Estado de la cuenta:', user.estado);
-          return res.status(403).json({ success: false, message: 'Cuenta inactiva o pendiente.' });
-      }
+      if (user.estado === 'inactivo') {
+        return res.status(403).json({ success: false, message: 'Tu cuenta está inactiva. Contacta a soporte.' });
+    } else if (user.estado === 'pendiente') {
+        return res.status(409).json({ success: false, message: 'Tu cuenta está pendiente de verificación. Revisa tu correo electrónico.' });
+    }
 
       // Verifica la contraseña
       bcrypt.compare(contrasena, user.contrasena, (err, isMatch) => {
@@ -290,6 +290,7 @@ app.post('/login', (req, res) => {
       });
   });
 });
+
 
 // Función para generar una contraseña aleatoria
 function generarContraseña(length) {

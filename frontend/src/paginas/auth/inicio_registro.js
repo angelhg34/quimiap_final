@@ -234,10 +234,10 @@ const Inicio_registro = () => {
     };
 
     const handleKeyPress = (event) => {
-        if (!/^[a-zA-Z\s]*$/.test(event.key)) {
+        if (!/^[A-Z\s]*$/.test(event.key)) {
             event.preventDefault();
         }
-    };
+    };    
     
 
     useEffect(() => {
@@ -318,7 +318,7 @@ const Inicio_registro = () => {
                     console.log("Redirigiendo a:", route);
                     navigate(route);
 
-                } else if (user.estado === "pendiente") {
+                } else if (user.estado === "Pendiente") {
                     // Mostrar alerta si el usuario está pendiente
                     await Swal.fire({
                         title: 'Cuenta Pendiente',
@@ -355,10 +355,18 @@ const Inicio_registro = () => {
                 console.error("Código de estado:", error.response.status);
                 
                 // Mostrar alerta personalizada según el código de error
-                if (error.response.status === 403) {
+                if (error.response.status === 409) {
                     await Swal.fire({
-                        title: 'Acceso Prohibido',
-                        text: 'No tienes permiso para acceder a esta acción. Por favor, verifica tus credenciales.',
+                        title: 'Cuenta Pendiente',
+                        text: 'Tu cuenta está pendiente de verificación. Revisa tu correo electrónico.',
+                        icon: 'error',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else if (error.response.status === 403) {
+                    await Swal.fire({
+                        title: 'Cuenta Inactiva',
+                        text: 'Tu cuenta está inactiva. Contacta a soporte.',
                         icon: 'error',
                         timer: 2000,
                         showConfirmButton: false
@@ -367,6 +375,14 @@ const Inicio_registro = () => {
                     await Swal.fire({
                         title: 'Error',
                         text: 'Credenciales incorrectas. Por favor, intenta nuevamente.',
+                        icon: 'error',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else if (error.response.status === 404) {
+                    await Swal.fire({
+                        title: 'Usuario no encontrado',
+                        text: 'El correo electrónico no está registrado. Por favor, regístrate.',
                         icon: 'error',
                         timer: 2000,
                         showConfirmButton: false
@@ -459,45 +475,40 @@ const Inicio_registro = () => {
         if (email) {
             try {
                 // Verificar si el correo existe en la base de datos
-                const checkResponse = await fetch(`http://localhost:4001/usuarios?correo_electronico=${email}`);
-                const data = await checkResponse.json();
-    
-                if (data.length > 0) {
-                    // Si el correo existe, enviar el correo de restablecimiento de contraseña
-                    const response = await fetch('http://localhost:5000/enviar-restablecer-contrasena', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ correo_electronico: email })
-                    });
-    
-                    if (response.ok) {
-                        // Mostrar alerta de éxito si se envió el correo correctamente
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Correo enviado',
-                            text: 'Se ha enviado un link de recuperación a tu correo electrónico.',
-                            timer: 2000,
-                            showConfirmButton: false
-                        });
-                    } else {
-                        // Mostrar alerta de error si no se pudo enviar el correo
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Hubo un problema al enviar el correo. Inténtalo de nuevo.',
-                            timer: 2000,
-                            showConfirmButton: false
-                        });
-                    }
-                } else {
-                    // Mostrar alerta si el correo no existe en la base de datos
+                const checkResponse = await axios.get(`http://localhost:4001/usuarios/correo/${encodeURIComponent(email)}`);
+                
+                // Si el usuario no existe, se lanzará un error
+                if (!checkResponse.data || checkResponse.data.length === 0) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Usuario no encontrado',
                         text: 'El correo electrónico no está registrado. Por favor, regístrate.',
                         timer: 3000,
+                        showConfirmButton: false
+                    });
+                    return;
+                }
+        
+                // Si el correo existe, enviar el correo de restablecimiento de contraseña
+                const response = await axios.post('http://localhost:5000/enviar-restablecer-contrasena', {
+                    correo_electronico: email
+                });
+        
+                // Verificar si el correo se envió correctamente
+                if (response.status === 200) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Correo enviado',
+                        text: 'Se ha enviado un link de recuperación a tu correo electrónico.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Hubo un problema al enviar el correo. Inténtalo de nuevo.',
+                        timer: 2000,
                         showConfirmButton: false
                     });
                 }
@@ -511,7 +522,7 @@ const Inicio_registro = () => {
                     showConfirmButton: false
                 });
             }
-        }
+        }        
     };
     return (
         <div className="registro-container">
