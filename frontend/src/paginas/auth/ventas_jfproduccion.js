@@ -13,20 +13,21 @@ const VentasjfProduccion = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10); // Número de ventas por página
 
-  // Función para obtener VENTAS de la API
-  const fetchVentas = async () => {
+  // Función para obtener VENTAS y USUARIOS de la API
+  const fetchVentasUsuarios = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/Sales');
+      const response = await axios.get('http://localhost:4001/ventasUsuariosAdmin');
       setVentas(response.data);
       setFilteredVentas(response.data); // Inicialmente, mostrar todas las ventas
     } catch (error) {
-      console.error('Error fetching ventas:', error);
+      console.error('Error fetching ventas y usuarios:', error);
     }
   };
 
   useEffect(() => {
-    fetchVentas();
+    fetchVentasUsuarios(); // Llamar al nuevo endpoint
   }, []);
+
 
   // Función para manejar el cambio en el input de fecha
   const handleFechaChange = (e) => {
@@ -137,13 +138,13 @@ const VentasjfProduccion = () => {
             </thead>
             <tbody>
               {currentVentas.map((venta) => (
-                <tr key={venta.id}>
-                  <td>{venta.id}</td>
+                <tr key={venta.id_venta}>
+                  <td>{venta.id_venta}</td>
                   <td>{venta.fecha_venta}</td>
                   <td>{venta.metodo_pago}</td>
                   <td>{venta.precio_total}</td>
                   <td>{venta.estado}</td>
-                  <td>{venta.cliente_id}</td>
+                  <td>{venta.num_doc}</td>
                 </tr>
               ))}
             </tbody>

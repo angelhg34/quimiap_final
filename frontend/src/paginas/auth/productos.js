@@ -18,7 +18,7 @@ const Productos = () => {
     advertencias: '',
     cantidad_producto: '',
     precio_unitario: '',
-    estado: 'disponible' 
+    estado: '' 
   });
 
   const [productos, setProductos] = useState([]);
@@ -34,7 +34,6 @@ const Productos = () => {
     const [currentPageProduct, setCurrentPageProduct] = useState(1);
     const recordsPerPage = 3;
 
-  // Función para obtener productos de la base de datos
   const fetchProductos = async () => {
     try {
       const response = await axios.get('http://localhost:4001/Producto');
@@ -58,21 +57,12 @@ const Productos = () => {
     fetchCategorias(); // Llamar a la función para obtener las categorías al cargar el componente
   }, []);
 
-  useEffect(() => {
-    fetchProductos();
-  }, []);
-
   // Manejar cambio en los campos de formulario
   const handleInputChange = (e) => {
     const { id, value } = e.target;
 
     setFormData((prevFormData) => {
       const newFormData = { ...prevFormData, [id]: value };
-
-      // Si se cambia la cantidad, ajustar el estado automáticamente
-      if (id === 'cantidad_producto') {
-        newFormData.estado = value > 0 ? 'disponible' : 'agotado';
-      }
 
       return newFormData;
     });
@@ -174,11 +164,9 @@ const handleUpdateProduct = async () => {
   }
 };
 
-  // Descontinuar producto
-  // Función para descontinuar un producto
+// Descontinuar producto
 const handleSetInactiveProduct = async (id_producto) => {
-  // Advertencia de confirmación
-  const result = await Swal.fire({
+  const confirmInactive = await Swal.fire({
       title: '¿Estás seguro?',
       text: "No podrás revertir esto.",
       icon: 'warning',
@@ -189,16 +177,21 @@ const handleSetInactiveProduct = async (id_producto) => {
       cancelButtonText: 'Cancelar'
   });
 
-  if (result.isConfirmed) {
+  if (confirmInactive.isConfirmed) {
       try {
-          await axios.put('http://localhost:4001/descontinuarProducto', { id_producto });
-          fetchProductos(); // Actualizar la lista de productos
+          const response = await axios.put(`http://localhost:4001/descontinuarProducto/${id_producto}`, {
+          estado: 'descontinuado'
+        });
+        console.log("datos", response.data)
+
           Swal.fire({
               title: 'Producto descontinuado',
-              text: 'El producto se ha marcado como descontinuado.',
+              text: 'El producto se ha descontinuado.',
               icon: 'success',
               showConfirmButton: false,
               timer: 1000,
+          }).then(() => {
+            fetchProductos(); 
           });
       } catch (error) {
           console.error('Error descontinuando producto:', error);
@@ -212,6 +205,7 @@ const handleSetInactiveProduct = async (id_producto) => {
       }
   }
 };
+
   // Filtrar productos basados en el término de búsqueda y en la categoría
   const filteredProducts = productos
     .filter((producto) => 
@@ -244,7 +238,7 @@ const handleSetInactiveProduct = async (id_producto) => {
     // Obtener la lista de productos actualizada
     const fetchProductos = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/Products');
+        const response = await axios.get('http://localhost:4001/Producto');
         setProductos(response.data);
       } catch (error) {
         console.error('Error al obtener los productos:', error);
@@ -267,7 +261,7 @@ const handleSetInactiveProduct = async (id_producto) => {
       advertencias: '',
       precio_unitario: '',
       cantidad_producto:'',
-      estado:'disponible'
+      estado:''
     });
     setCurrentProduct(null);
   };
@@ -352,7 +346,7 @@ const handleSetInactiveProduct = async (id_producto) => {
             <label className="form-label">Categoría</label>
             <select
               className="form-control"
-              id="categoria_id" // Cambiado a categoria_id
+              id="categoria_id"
               value={formData.categoria_id}
               onChange={handleInputChange}
             >

@@ -41,9 +41,7 @@ function App() {
           } />
           <Route path='/productos.js' exact element={<Productos />} />
           <Route path='/ventas_admin.js' exact element={
-            <PrivateRoute allowedRoles={['gerente']}>
               <VentasAdmin />
-            </PrivateRoute>
           } />
           <Route path='/domicilios_admin.js' exact element={
             <PrivateRoute allowedRoles={['gerente']}>

@@ -55,6 +55,7 @@ app.get('/usuarios', (req, res) => {
   });
 });
 
+
 // Consulta general de la tabla Usuario
 app.get('/usuariosDomiciliarios', (req, res) => {
   const query = 'SELECT * FROM Usuario WHERE rol = "domiciliario"';
@@ -421,6 +422,7 @@ app.get('/categoria', (req, res) => {
 
 // Consulta general de la tabla Producto
 app.get('/Producto', (req, res) => {
+
   const query = `
       SELECT 
           p.id_producto,
@@ -511,17 +513,24 @@ app.put('/actualizarProducto', (req, res) => {
 });
 
 // Cambiar estado de un producto
-app.put('/descontinuarProducto', (req, res) => {
-  const { id_producto } = req.body; 
+app.put('/descontinuarProducto/:id_producto', (req, res) => {
+  const { estado } = req.body; 
+  const id_producto = req.params.id_producto; // Usar req.params
 
-  const query = `UPDATE Producto SET estado = 'descontinuado' WHERE id_producto = ?`;
+  const query = `CALL CambiarEstadoProducto(?, ?)`;
 
-  connection.query(query, [id_producto], (err, results) => {
+  connection.query(query, [id_producto, estado], (err, results) => {
       if (err) {
           console.error('Error ejecutando la consulta:', err);
           return res.status(500).json({ success: false, error: err });
       }
-      res.json({ success: true, message: 'Producto descontinuado correctamente' });
+
+      // Verificar si se actualizaron filas
+      if (results.affectedRows === 0) {
+          return res.status(404).json({ success: false, message: 'Producto no encontrado o no actualizado' });
+      }
+
+      res.json({ success: true, results });
   });
 });
 

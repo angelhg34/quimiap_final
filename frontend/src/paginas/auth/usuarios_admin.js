@@ -288,9 +288,8 @@ const handleSetInactiveUser = async (id_usuario) => {
 
   if (confirmInactive.isConfirmed) {
       try {
-          // Llamar al procedimiento almacenado para cambiar el estado
           await axios.put(`http://localhost:4001/cambiarEstadoUsuario/${id_usuario}`, {
-              estado: 'inactivo' // Cambiar a 'inactivo'
+              estado: 'inactivo'
           });
 
           Swal.fire({
@@ -300,7 +299,7 @@ const handleSetInactiveUser = async (id_usuario) => {
               timer: 2000,
               showConfirmButton: false
           }).then(() => {
-              fetchUsers(); // Volver a cargar la lista de usuarios
+              fetchUsers();
           });
       } catch (error) {
           console.error('Error setting user inactive:', error);
