@@ -25,10 +25,8 @@ const CarritoPage = () => {
       const response = await fetch(`http://localhost:4001/productoStock/${id}`);
       const producto = await response.json();
         
-      // Asegúrate de que 'cantidad_producto' existe en la respuesta
       const productoStock = parseInt(producto.cantidad, 10);
   
-      // Verifica que productoStock sea un número
       if (isNaN(productoStock)) {
         Swal.fire({
           title: 'Error',
@@ -42,9 +40,9 @@ const CarritoPage = () => {
   
       const nuevoCarrito = carrito.map(p => {
         console.log('Stock disponible:', productoStock);
-        console.log('Cantidad actual:', p.cantidad); // Mostrar la cantidad actual del carrito
+        console.log('Cantidad actual:', p.cantidad); 
   
-        if (p.id_producto === id) { // Comparar con id_producto
+        if (p.id_producto === id) { 
           if (p.cantidad < productoStock) {
             return { ...p, cantidad: p.cantidad + 1 };
           } else {

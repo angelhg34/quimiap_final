@@ -78,10 +78,9 @@ const handleSort = (type) => {
 
   const agregarAlCarrito = async (producto) => {
     const carritoGuardado = JSON.parse(localStorage.getItem('carrito')) || [];
-    const productoEnCarrito = carritoGuardado.find(p => p.id_producto === producto.id_producto); // Cambia id por id_producto
+    const productoEnCarrito = carritoGuardado.find(p => p.id_producto === producto.id_producto); 
   
-    // Obtén el stock del producto
-    const stock = await obtenerStockDelProducto(producto.id_producto); // Cambia id por id_producto
+    const stock = await obtenerStockDelProducto(producto.id_producto); 
   
     if (productoEnCarrito) {
       // Verificar si la nueva cantidad no excede el stock disponible
@@ -98,7 +97,7 @@ const handleSort = (type) => {
   
       // Actualizar la cantidad en el carrito
       const nuevoCarrito = carritoGuardado.map(p =>
-        p.id_producto === producto.id_producto ? { ...p, cantidad: p.cantidad + 1 } : p // Cambia id por id_producto
+        p.id_producto === producto.id_producto ? { ...p, cantidad: p.cantidad + 1 } : p 
       );
       localStorage.setItem('carrito', JSON.stringify(nuevoCarrito));
     } else {

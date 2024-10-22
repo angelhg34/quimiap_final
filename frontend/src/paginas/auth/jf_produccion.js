@@ -1,39 +1,41 @@
 import React, { useEffect, useState,useRef } from 'react';
+import Header2 from '../../componentes/header2';
 import axios from 'axios';
-import Header3 from '../../componentes/header3';
 import Swal from 'sweetalert2';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faSearch,faFilter } from '@fortawesome/free-solid-svg-icons';
+import '../../styles/productos.css'
+import Header3 from '../../componentes/header3';
+
 
 const JfProduccion = () => {
   const [formData, setFormData] = useState({
     nombre: '',
     descripcion: '',
     imagen: '',
-    categoria: '',
+    categoria_id: '', 
     composicion: '',
     contenido_neto: '',
     usos: '',
     advertencias: '',
-    cantidad:'',
+    cantidad_producto: '',
     precio_unitario: '',
-    estado:''
+    estado: '' 
   });
 
   const [productos, setProductos] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
+  const [categorias, setCategorias] = useState([]); // Para almacenar las categorías
   const [currentProduct, setCurrentProduct] = useState(null);
   const [searchTerm, setSearchTerm] = useState(''); // Estado para filtro
   const [productsTypeFilter, setProductsTypeFilter] = useState('todos');
   const [showFilters, setShowFilters] = useState(false);
-  const [categorias, setCategorias] = useState([]); // Para almacenar las categorías
   const filterMenuRef = useRef(null);
 
     // Paginación
     const [currentPageProduct, setCurrentPageProduct] = useState(1);
     const recordsPerPage = 3;
 
-  // Función para obtener productos de la API
   const fetchProductos = async () => {
     try {
       const response = await axios.get('http://localhost:4001/Producto');
@@ -51,7 +53,6 @@ const JfProduccion = () => {
       console.error('Error fetching categories:', error);
     }
   };
-
 
   useEffect(() => {
     fetchProductos();
@@ -76,8 +77,7 @@ const JfProduccion = () => {
     }
   }
 
-
-// Función para registrar un nuevo producto
+  // Función para registrar un nuevo producto
   const handleRegisterProduct = async () => {
     const requiredFields = ['nombre', 'descripcion', 'imagen', 'categoria_id', 'composicion', 'contenido_neto', 'usos', 'advertencias', 'cantidad_producto', 'precio_unitario'];
     const isFormValid = requiredFields.every(field => formData[field]);
@@ -116,6 +116,7 @@ const JfProduccion = () => {
     }
   };
 
+
 // Función para editar un producto
 const handleEditProduct = (product) => {
   setIsEditing(true);
@@ -125,7 +126,7 @@ const handleEditProduct = (product) => {
 
 // Función para actualizar un producto
 const handleUpdateProduct = async () => {
-  const requiredFields = ['nombre', 'descripcion', 'imagen','id_categoria', 'composicion', 'contenido_neto', 'usos', 'advertencias', 'cantidad_producto', 'precio_unitario'];
+  const requiredFields = ['nombre', 'descripcion', 'imagen', 'categoria_id', 'composicion', 'contenido_neto', 'usos', 'advertencias', 'cantidad_producto', 'precio_unitario'];
   const isFormValid = requiredFields.every(field => formData[field]);
 
   if (!isFormValid) {
@@ -165,47 +166,47 @@ const handleUpdateProduct = async () => {
   }
 };
 
-  // Descontinuar producto
-  const handleSetInactiveProduct = async (id_producto) => {
-    const confirmInactive = await Swal.fire({
-        title: '¿Estás seguro?',
-        text: "No podrás revertir esto.",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sí, descontinuar',
-        cancelButtonText: 'Cancelar'
-    });
-  
-    if (confirmInactive.isConfirmed) {
-        try {
-            const response = await axios.put(`http://localhost:4001/descontinuarProducto/${id_producto}`, {
-            estado: 'descontinuado'
-          });
-          console.log("datos", response.data)
+// Descontinuar producto
+const handleSetInactiveProduct = async (id_producto) => {
+  const confirmInactive = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: "No podrás revertir esto.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, descontinuar',
+      cancelButtonText: 'Cancelar'
+  });
 
-            Swal.fire({
-                title: 'Producto descontinuado',
-                text: 'El producto se ha descontinuado.',
-                icon: 'success',
-                showConfirmButton: false,
-                timer: 1000,
-            }).then(() => {
-              fetchProductos(); 
-            });
-        } catch (error) {
-            console.error('Error descontinuando producto:', error);
-            Swal.fire({
-                title: 'Error',
-                text: 'No se pudo descontinuar el producto.',
-                icon: 'error',
-                showConfirmButton: false,
-                timer: 2000,
-            });
-        }
-    }
-  };
+  if (confirmInactive.isConfirmed) {
+      try {
+          const response = await axios.put(`http://localhost:4001/descontinuarProducto/${id_producto}`, {
+          estado: 'descontinuado'
+        });
+        console.log("datos", response.data)
+
+          Swal.fire({
+              title: 'Producto descontinuado',
+              text: 'El producto se ha descontinuado.',
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 1000,
+          }).then(() => {
+            fetchProductos(); 
+          });
+      } catch (error) {
+          console.error('Error descontinuando producto:', error);
+          Swal.fire({
+              title: 'Error',
+              text: 'No se pudo descontinuar el producto.',
+              icon: 'error',
+              showConfirmButton: false,
+              timer: 2000,
+          });
+      }
+  }
+};
 
   // Filtrar productos basados en el término de búsqueda y en la categoría
   const filteredProducts = productos
@@ -232,7 +233,22 @@ const handleUpdateProduct = async () => {
   // Cambiar de página
   const handlePageChangeProduct = (pageNumber) => {
     setCurrentPageProduct(pageNumber);
-  }; 
+  };
+
+  
+  useEffect(() => {
+    // Obtener la lista de productos actualizada
+    const fetchProductos = async () => {
+      try {
+        const response = await axios.get('http://localhost:4001/Producto');
+        setProductos(response.data);
+      } catch (error) {
+        console.error('Error al obtener los productos:', error);
+      }
+    };
+
+    fetchProductos();
+  }, []);   
 
   // Resetear formulario
   const resetForm = () => {
@@ -246,7 +262,7 @@ const handleUpdateProduct = async () => {
       usos: '',
       advertencias: '',
       precio_unitario: '',
-      cantidad:'',
+      cantidad_producto:'',
       estado:''
     });
     setCurrentProduct(null);
@@ -265,7 +281,7 @@ const handleUpdateProduct = async () => {
 
   return (
     <div>
-      <Header3/>
+      <Header3 />
       <div className="container">
         <h2>Registro de productos</h2>
         {/* Campo de búsqueda */}
@@ -311,8 +327,7 @@ const handleUpdateProduct = async () => {
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title" id="registroProductoModalLabel">Registrar Producto</h5>
-                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" />
-              </div>
+                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" /></div>
               <div className="modal-body">
                 <form>
                   {/* Formulario de registro */}
@@ -486,7 +501,7 @@ const handleUpdateProduct = async () => {
                     <td style={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {product.advertencias}
                     </td>
-                    <td>{product.cantidad}</td>
+                    <td>{product.cantidad_producto}</td>
                     <td>{product.precio_unitario}</td>
                     <td>{product.estado}</td>
                     <td>

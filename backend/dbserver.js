@@ -10,24 +10,24 @@ const session = require('express-session');
 
 // Configuración de express-session
 app.use(session({
-  secret: 'uFJG768ujfghASDGJKL!@1234asdf8976&%$#', // Debes cambiar esto por un secreto fuerte y único
-  resave: false, // No volver a guardar la sesión si no se ha modificado
-  saveUninitialized: false, // No guardar sesiones vacías o sin inicializar
+  secret: 'uFJG768ujfghASDGJKL!@1234asdf8976&%$#', 
+  resave: false, 
+  saveUninitialized: false, 
   cookie: { 
-    secure: false, // true si usas HTTPS
-    maxAge: 1000 * 60 * 60 * 24 // 1 día de duración para las cookies de sesión
+    secure: false, // HTTPS
+    maxAge: 1000 * 60 * 60 * 24 // 1 dia cookies de sesión
   }
 }));
 
 
-app.use(cors()); // Habilita CORS para permitir solicitudes desde tu frontend
+app.use(cors()); // Habilita CORS solicitudes frontend
 app.use(express.json()); // Permite el parsing de JSON en las solicitudes
 
 // Conectar a la base de datos
 const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'root',
+  password: 'r1234',
   database: 'quimiap'
 });
 
@@ -65,7 +65,7 @@ app.get('/usuariosDomiciliarios', (req, res) => {
       console.error('Error al realizar la consulta:', error);
       res.status(500).json({ error: 'Error al realizar la consulta' });
     } else {
-      res.json(results); // Devuelve los resultados de la consulta
+      res.json(results); 
     }
   });
 });
@@ -86,15 +86,15 @@ const verificarUsuarioExistente = (correo_electronico, num_doc) => {
 
 // Función para registrar un usuario
 const registrarUsuario = (datosUsuario) => {
-  return new Promise((resolve, reject) => { // Devolver una promesa
+  return new Promise((resolve, reject) => {
       const query = 'INSERT INTO Usuario (nombres, apellidos, telefono, correo_electronico, tipo_doc, num_doc, contrasena, rol) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
 
       connection.query(query, datosUsuario, (err, results) => {
           if (err) {
               console.error('Error al registrar usuario:', err);
-              return reject(err); // Rechazar la promesa en caso de error
+              return reject(err); 
           }
-          resolve(results); // Resolver la promesa con los resultados
+          resolve(results); 
       });
   });
 };
@@ -136,7 +136,6 @@ app.post('/registrarUser', async (req, res) => {
           contraseñaUsar = contrasena;
 
       } else {
-          // Rol no reconocido
           return res.status(400).json({ success: false, message: 'Rol no reconocido.' });
       }
 
@@ -242,17 +241,17 @@ app.post('/login', (req, res) => {
       // Verifica si el usuario existe
       if (results.length === 0) {
           console.log('No se encontró el usuario con el correo proporcionado.');
-          return res.status(404).json({ success: false, message: 'El correo electrónico no está registrado.' });
+          return res.status(401).json({ success: false, message: 'Credenciales incorrectas.' });
       }
 
       const user = results[0];
       console.log('Usuario encontrado:', user);
 
-      if (user.estado === 'inactivo') {
-        return res.status(403).json({ success: false, message: 'Tu cuenta está inactiva. Contacta a soporte.' });
-    } else if (user.estado === 'pendiente') {
-        return res.status(409).json({ success: false, message: 'Tu cuenta está pendiente de verificación. Revisa tu correo electrónico.' });
-    }
+      // Verificar el estado de la cuenta
+      if (user.estado !== 'activo') {
+          console.log('Estado de la cuenta:', user.estado);
+          return res.status(403).json({ success: false, message: 'Cuenta inactiva o pendiente.' });
+      }
 
       // Verifica la contraseña
       bcrypt.compare(contrasena, user.contrasena, (err, isMatch) => {
@@ -290,7 +289,6 @@ app.post('/login', (req, res) => {
       });
   });
 });
-
 
 // Función para generar una contraseña aleatoria
 function generarContraseña(length) {
@@ -470,7 +468,7 @@ app.post('/registrarProducto', (req, res) => {
       estado 
   } = req.body;
 
-  const query = `CALL RegistrarProducto(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  const query = `CALL RegistrarProducto(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
   connection.query(query, 
     [nombre, descripcion, imagen, categoria_id, composicion, contenido_neto, usos, advertencias, cantidad_producto, precio_unitario, estado], 
@@ -584,7 +582,7 @@ app.post('/registrarVenta', (req, res) => {
 app.post('/registrarDomicilio', (req, res) => {
   const { direccion, ciudad, codigo_postal, fecha_entrega, estado_entrega, domiciliario_id, venta_id } = req.body;
 
-  const query = `CALL RegistrarDomicilio(?, ?, ?, ?, ?, ?, ?)`;
+  const query = `CALL registrar_domicilio(?, ?, ?, ?, ?, ?, ?)`;
 
   connection.query(query, [direccion, ciudad, codigo_postal, fecha_entrega, estado_entrega, domiciliario_id, venta_id], (err, results) => {
     if (err) {
@@ -596,7 +594,7 @@ app.post('/registrarDomicilio', (req, res) => {
 });
 
 app.get('/ventasDelCliente', (req, res) => {
-  const userId = req.query.userId; // Obtén el ID del usuario desde los parámetros de consulta
+  const userId = req.query.userId; 
 
   const query = `
     SELECT 
@@ -631,7 +629,7 @@ app.get('/ventasDelCliente', (req, res) => {
 
 // Endpoint para obtener ventas con información de usuarios
 app.get('/ventasUsuariosAdmin', async (req, res) => {
-  const userId = req.query.userId; // Obtén el ID del usuario desde los parámetros de consulta
+  const userId = req.query.userId; 
 
   const query = `
     SELECT v.id_venta, v.fecha_venta, v.metodo_pago, v.precio_total, v.estado, u.num_doc, u.nombres, u.apellidos
@@ -650,7 +648,7 @@ app.get('/ventasUsuariosAdmin', async (req, res) => {
 // Endpoint para obtener domicilios con información de ventas y usuarios
 app.get('/domiciliosVentasUsuarios', async (req, res) => {
 
-  const userId = req.query.userId; // Obtén el ID del usuario desde los parámetros de consulta
+  const userId = req.query.userId; 
 
   const query = `
     SELECT d.id_domicilio, d.direccion, d.ciudad, d.fecha_entrega, d.estado_entrega, 
@@ -672,7 +670,7 @@ app.get('/domiciliosVentasUsuarios', async (req, res) => {
   // Endpoint para obtener domicilios con información de ventas y usuarios
 app.get('/domiciliosDomiciliario/:id_usuario', async (req, res) => {
 
-  const userId = req.query.userId; // Obtén el ID del domiciliario desde los parámetros de consulta
+  const userId = req.query.userId; 
 
   const query = `
     SELECT d.id_domicilio, d.direccion, d.ciudad, d.fecha_entrega, d.estado_entrega, 
