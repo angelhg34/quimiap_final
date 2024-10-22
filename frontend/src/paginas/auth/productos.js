@@ -210,7 +210,7 @@ const handleSetInactiveProduct = async (id_producto) => {
   const filteredProducts = productos
     .filter((producto) => 
       producto.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      producto.id.toString().includes(searchTerm.toLowerCase())
+      producto.id_producto.toString().includes(searchTerm.toLowerCase())
     )
     .filter((producto) => {
       if (productsTypeFilter === 'todos') return true;
@@ -266,7 +266,6 @@ const handleSetInactiveProduct = async (id_producto) => {
     setCurrentProduct(null);
   };
 
-   // Función para manejar el cambio en el input de búsqueda
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
@@ -380,7 +379,7 @@ const handleSetInactiveProduct = async (id_producto) => {
                   </div>
                   <div className="mb-3">
                     <label htmlFor="precio_unitario" className="form-label">Precio Unitario</label>
-                    <input type="text" className="form-control" id="precio_unitario" placeholder="Ingrese precio unitario del producto" value={formData.precio_unitario} onChange={handleInputChange} />
+                    <input type="number" className="form-control" id="precio_unitario" placeholder="Ingrese precio unitario del producto" value={formData.precio_unitario} onChange={handleInputChange} />
                   </div>
                 </form>
               </div>

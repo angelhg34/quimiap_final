@@ -27,7 +27,7 @@ app.use(express.json()); // Permite el parsing de JSON en las solicitudes
 const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'r1234',
+  password: '',
   database: 'quimiap'
 });
 

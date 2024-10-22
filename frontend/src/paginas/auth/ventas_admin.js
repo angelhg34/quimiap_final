@@ -7,7 +7,10 @@ const VentasAdmin = () => {
   const [ventas, setVentas] = useState([]);
   const [filteredVentas, setFilteredVentas] = useState([]);
   const [fechaFiltro, setFechaFiltro] = useState('');
+  const clienteId = sessionStorage.getItem('userId');
   const [identificacionFiltro, setIdentificacionFiltro] = useState('');
+
+
   
   // Paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -62,11 +65,9 @@ const VentasAdmin = () => {
     }
     
     // Filtrar por número de identificación
-    if (identificacionFiltro) {
-      ventasFiltradas = ventasFiltradas.filter((venta) =>
-        venta.num_doc === identificacionFiltro
-      );
-    }
+    ventasFiltradas = ventasFiltradas.filter((venta) =>
+      String(venta.num_doc) === String(identificacionFiltro)
+    );
 
     setFilteredVentas(ventasFiltradas);
     setCurrentPage(1); // Reiniciar la página actual a 1 al aplicar el filtro

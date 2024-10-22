@@ -234,7 +234,7 @@ const Inicio_registro = () => {
     };
 
     const handleKeyPress = (event) => {
-        if (!/^[A-Z\s]*$/.test(event.key)) {
+        if (!/^[A-Za-z\s]*$/.test(event.key)) {
             event.preventDefault();
         }
     };    
