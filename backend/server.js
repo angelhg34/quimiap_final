@@ -27,7 +27,7 @@ app.set("views", path.join(__dirname, "views"));
 const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: 'Root',
     database: 'quimiap'
   });
   
@@ -581,98 +581,167 @@ app.post("/actualizar-contrasena", async (req, res) => {
         res.status(500).json({ success: false, message: "Error al actualizar la contraseña." });
     }
 });
-
-// Ruta para enviar los detalles de la venta y alerta por bajo stock
+// ENDPOINT PARA LOS DETALLES DE LA VENTA
 app.post("/enviar-detalle-venta", async (req, res) => {
     try {
-        const { venta_id, productos, id, correo_electronico } = req.body;
+        const { venta_id } = req.body;  // Solo se recibe el venta_id
 
-        // Configura el contenido del correo para el cliente
-        const ventaMailOptions = {
-            from: "quimiap.1999.quimicos@gmail.com",
-            to: correo_electronico,
-            subject: "Detalles de tu Venta",
-            html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px; background-color: #f9f9f9; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
-                    <h2 style="color: #28a745; text-align: center;">Detalles de tu Venta</h2>
-                    <p style="color: #555; font-size: 16px;">Aquí tienes los detalles de tu venta:</p>
-                    <h3 style="color: #28a745;">Productos Comprados:</h3>
-                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
-                        <thead>
-                            <tr>
-                                <th style="padding: 10px;">Nombre del Producto</th>
-                                <th style="padding: 10px;">Imagen</th>
-                                <th style="padding: 10px;">Cantidad</th>
-                                <th style="padding: 10px;">Precio Unitario</th>
-                                <th style="padding: 10px;">Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${productos.map(prod => `
-                                <tr>
-                                    <td style="padding: 10px;">${prod.nombre}</td>
-                                    <td style="padding: 10px;">
-                                        <img src="${prod.imagen}" alt="Producto" style="width: 50px; height: auto;" />
-                                    </td>
-                                    <td style="padding: 10px;">${prod.cantidad}</td>
-                                    <td style="padding: 10px;">$${parseFloat(prod.precio_unitario).toFixed(2)}</td>
-                                    <td style="padding: 10px;">$${parseFloat(prod.subtotal).toFixed(2)}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                    <h4 style="color: #28a745; text-align: right;">Precio Total de la Venta: $${parseFloat(productos.reduce((acc, prod) => acc + prod.subtotal, 0)).toFixed(2)}</h4>
-                    <p style="color: #555; font-size: 16px; text-align: center;">¡Gracias por confiar en nosotros!</p>
-                    <p style="text-align: center; font-size: 12px; color: #888;">© 2024 Quimiap. Todos los derechos reservados.</p>
-                </div>
-            `,
-        };
+        // Consulta para obtener el correo electrónico del cliente y los detalles de la venta, junto con el total de la venta
+        const ventaQuery = `
+            SELECT u.correo_electronico, p.nombre, 
+                   COALESCE(p.imagen, 'https://example.com/default-image.png') AS imagen, 
+                   dv.cantidad_total AS cantidad, 
+                   p.precio_unitario, 
+                   dv.subtotal,
+                   v.precio_total
+            FROM Venta v
+            JOIN Usuario u ON v.cliente_id = u.id_usuario
+            JOIN Detalles_Venta dv ON dv.venta_id = v.id_venta
+            JOIN Producto p ON dv.producto_id = p.id_producto
+            WHERE v.id_venta = ?
+        `;
 
-        // Enviar correo al cliente
-        await transporter.sendMail(ventaMailOptions);
+        connection.query(ventaQuery, [venta_id], (error, resultados) => {
+            if (error) {
+                console.error("Error en la consulta a la base de datos:", error);
+                return res.status(500).json({ message: "Error en la consulta a la base de datos." });
+            }
 
-        // Verificar si algún producto tiene bajo stock
-        const productosBajoStock = productos.filter(prod => prod.cantidad <= 2);
+            // Verificar si se obtuvieron resultados
+            if (resultados.length === 0) {
+                return res.status(404).json({ message: "Venta no encontrada." });
+            }
 
-        if (productosBajoStock.length > 0) {
-            // Configura el contenido del correo para el jefe de producción
-            const jefeProduccionMailOptions = {
+            // Extraer el correo del cliente (asumiendo que todos los resultados tienen el mismo correo)
+            const correo_electronico = resultados[0].correo_electronico;
+            const precio_total = resultados[0].precio_total;
+
+            // Configura el contenido del correo con los resultados de la consulta
+            const mailOptions = {
                 from: "quimiap.1999.quimicos@gmail.com",
-                to: "jeissuvan@gmail.com", // Correo del jefe de producción
-                subject: "Alerta: Stock Bajo de Productos",
+                to: correo_electronico,
+                subject: "Detalles de tu Venta",
                 html: `
                     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px; background-color: #f9f9f9; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
-                        <h2 style="color: #dc3545; text-align: center;">Alerta de Stock Bajo</h2>
-                        <p style="color: #555; font-size: 16px;">Los siguientes productos están por debajo del nivel de stock:</p>
-                        <ul>
-                            
-                            ${productosBajoStock.map(prod => `
+                         <div style="text-align: center; margin-bottom: 20px;">
+                            <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+                                <img src="https://i.ibb.co/dbTBHkz/LOGO-JEFE-DE-PRODUCCI-N.jpg" alt="Logo Quimiap" style="max-width: 10%; height: auto; border-radius: 50%; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); margin-right: 10px;"/>
+                                <p style="color: #555; font-size: 20px; margin: 0; display: flex; align-items: center;">Tu tienda de productos químicos de confianza</p>
+                            </div>
+                        </div>
+                        <h2 style="color: #28a745; text-align: center;">Detalles de tu Venta</h2>
+                        <h3 style="color: #28a745;">Productos Comprados:</h3>
+                        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                            <thead>
                                 <tr>
-                                    <td style="padding: 10px;">${prod.nombre}</td>
-                                    <td style="padding: 10px;">
-                                        <img src="${prod.imagen}" alt="Producto" style="width: 50px; height: auto;" />
-                                    </td>
-                                    <td style="padding: 10px;"> cantidad restante: ${prod.cantidad}</td>
+                                    <th style="padding: 10px; border-bottom: 1px solid #ddd;">Nombre del Producto</th>
+                                    <th style="padding: 10px; border-bottom: 1px solid #ddd;">Imagen</th>
+                                    <th style="padding: 10px; border-bottom: 1px solid #ddd;">Cantidad</th>
+                                    <th style="padding: 10px; border-bottom: 1px solid #ddd;">Precio Unitario</th>
+                                    <th style="padding: 10px; border-bottom: 1px solid #ddd;">Subtotal</th>
                                 </tr>
-                            `).join('')}
+                            </thead>
+                            <tbody>
+                                ${resultados.map(prod => `
+                                    <tr>
+                                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">${prod.nombre}</td>
+                                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                                            <img src="${prod.imagen}" alt="Producto" style="width: 50px; height: auto;" />
+                                        </td>
+                                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">${prod.cantidad}</td>
+                                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">$${parseFloat(prod.precio_unitario).toFixed(2)}</td>
+                                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">$${parseFloat(prod.subtotal).toFixed(2)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        <h4 style="color: #28a745; text-align: right; margin-top: 20px;">Total de la Venta: $${parseFloat(precio_total).toFixed(2)}</h4>
+                        <p style="color: #555; font-size: 16px; text-align: center; margin-top: 20px;">¡Gracias por confiar en nosotros!</p>
+                        <p style="text-align: center; font-size: 12px; color: #888;">© 2024 Quimiap. Todos los derechos reservados.</p>
+                    </div>
+                `,
+            };
 
-                        </ul>
-                        <p style="color: #555; font-size: 16px;">Es necesario reponer el stock de estos productos lo antes posible.</p>
+            // Enviar el correo
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    console.error("Error al enviar el correo:", error);
+                    return res.status(500).json({ message: "Error al enviar el correo." });
+                }
+
+                res.status(200).json({ message: "Detalles de la venta enviados exitosamente." });
+            });
+        });
+    } catch (error) {
+        console.error("Error en el proceso de envío:", error);
+        res.status(500).json({ message: "Error en el proceso de envío." });
+    }
+});
+
+// ENDPOINT PARA ENVIAR ALERTA STOCK A JEFE DE PRODUCCION
+app.post("/enviar-alerta-stock-bajo", async (req, res) => {
+    try {
+        // Consulta para obtener productos con stock bajo y el correo del jefe de producción
+        const query = `
+            SELECT 
+                p.nombre,
+                p.cantidad,
+                u.correo_electronico
+            FROM 
+                Producto p
+            JOIN 
+                Usuario u ON u.rol = 'jefe de produccion'
+            WHERE 
+                p.cantidad <= 0;  // Cambia el valor aquí si deseas otro umbral
+        `;
+        
+        connection.query(query, (error, resultados) => {
+            if (error) {
+                console.error("Error al consultar la cantidad de productos y correo:", error);
+                return res.status(500).json({ message: "Error al consultar la cantidad de productos." });
+            }
+
+            // Si no hay productos con stock bajo
+            if (resultados.length === 0) {
+                return res.status(404).json({ message: "No hay productos con bajo stock." });
+            }
+
+            // Suponiendo que hay un solo jefe de producción
+            const correoJefeProduccion = resultados[0].correo_electronico; 
+            const productosBajoStock = resultados.map(prod => `${prod.nombre} - Cantidad restante: ${prod.cantidad}`).join('<br>');
+
+            // Configuración del correo
+            const jefeProduccionMailOptions = {
+                from: "quimiap.1999.quimicos@gmail.com",
+                to: correoJefeProduccion,
+                subject: "Alerta: Stock Bajo de Productos",
+                html: `
+                    <div>
+                        <h2>Alerta de Stock Bajo</h2>
+                        <p>Los siguientes productos están por debajo del nivel de stock:</p>
+                        <p>${productosBajoStock}</p>
+                        <p>Es necesario reponer el stock de estos productos lo antes posible.</p>
                     </div>
                 `,
             };
 
             // Enviar correo al jefe de producción
-            await transporter.sendMail(jefeProduccionMailOptions);
-        }
+            transporter.sendMail(jefeProduccionMailOptions, (error, info) => {
+                if (error) {
+                    console.error("Error al enviar el correo:", error);
+                    return res.status(500).json({ message: "Error al enviar el correo." });
+                }
 
-        // Responder al cliente
-        res.status(200).json({ message: "Detalles de la venta y alerta de stock bajo enviados exitosamente." });
+                res.status(200).json({ message: "Alerta de stock bajo enviada exitosamente." });
+            });
+        });
     } catch (error) {
-        console.error("Error al enviar el detalle de la venta:", error);
-        res.status(500).json({ message: "Error al enviar los detalles de la venta o la alerta de stock bajo." });
+        console.error("Error al enviar la alerta de stock bajo:", error);
+        res.status(500).json({ message: "Error al enviar la alerta de stock bajo." });
     }
 });
+
+
 
 
 // Iniciar el servidor con Express

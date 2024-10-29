@@ -11,7 +11,6 @@ const VentasCliente = () => {
   const [metodoPago, setMetodoPago] = useState('');
   const [precioTotal, setPrecioTotal] = useState('');
   const [carrito, setCarrito] = useState([]);
-  const [correo_electronico, setCorreoElectronico] = useState('');
   const [cliente, setCliente] = useState(null);
   const [domicilio, setDomicilio] = useState({
     direccion: '',
@@ -84,8 +83,8 @@ const VentasCliente = () => {
       console.error('Error al asignar domiciliario:', error);
       return null; // Retorna null en caso de error
     }
-  };
-  
+  }
+
 
   const handleSubmit = async (e) => {
     console.log('handleSubmit fue llamado'); // Agrega esto
@@ -94,7 +93,6 @@ const VentasCliente = () => {
     const ventaData = {
       metodo_pago: metodoPago,
       precio_total: precioTotal,
-      correo_electronico: correo_electronico,
       cliente_id: clienteId,
       carrito: carrito, 
     };
@@ -118,6 +116,14 @@ const VentasCliente = () => {
       const ventaResponse = await axios.post('http://localhost:4001/registrarVenta', ventaData);
       const ventaId = ventaResponse.data.id_venta; // Asegúrate de que esto coincida con tu respuesta
       console.log('Venta registrada con ID:', ventaId); // Verifica el ID de la venta registrada
+
+       // Enviar el correo con los detalles de la venta al cliente
+      const detalleVentaResponse = await axios.post('http://localhost:5000/enviar-detalle-venta', {
+        venta_id: ventaId,
+      });
+      console.log('Correo de verificación enviado:', detalleVentaResponse.data);
+
+       
   
       if (mostrarDomicilio) {
         const domicilioData = {
@@ -139,7 +145,7 @@ const VentasCliente = () => {
         icon: 'success',
         title: 'Venta registrada con éxito',
         text: 'La venta ha sido registrada correctamente.',
-        timer: 2000,
+        timer: 1000,
         showConfirmButton: false,
       }).then(() => {
         navigate('/MisVentas.js');
@@ -279,18 +285,6 @@ const VentasCliente = () => {
                   id="precioTotal"
                   value={precioTotal}
                   readOnly
-                />
-              </div>
-              <div className="mb-3">
-                <label htmlFor="correoElectronico" className="form-label">Correo Electrónico</label>
-                <input
-                  type="email"
-                  className="form-control"
-                  id="correoElectronico"
-                  maxLength={50}
-                  value={correo_electronico}
-                  onChange={(e) => setCorreoElectronico(e.target.value)} // Agrega esta línea para manejar el cambio
-                  required // Puedes hacer este campo obligatorio si es necesario
                 />
               </div>
               <div className="mb-3">

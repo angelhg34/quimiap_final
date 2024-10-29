@@ -27,7 +27,7 @@ app.use(express.json()); // Permite el parsing de JSON en las solicitudes
 const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: '',
+  password: 'Root',
   database: 'quimiap'
 });
 
@@ -536,44 +536,51 @@ app.put('/descontinuarProducto/:id_producto', (req, res) => {
 
 // REGISTRAR VENTAS
 app.post('/registrarVenta', (req, res) => {
-  const { metodo_pago, precio_total, correo_electronico, cliente_id, carrito } = req.body; 
+  const { metodo_pago, precio_total, cliente_id, carrito } = req.body;
 
-  const queryVenta = `CALL registrar_venta(?, ?, ?, ?)`;
-  
-  connection.query(queryVenta, [metodo_pago, precio_total, correo_electronico, cliente_id], (err, results) => {
-    if (err) {
-      console.error('Error registrando la venta:', err);
-      return res.status(500).json({ success: false, error: err });
+  // Obtener el correo electrónico del cliente
+  const queryCorreo = `SELECT correo_electronico FROM Usuario WHERE id_usuario = ?`;
+  connection.query(queryCorreo, [cliente_id], (err, results) => {
+    if (err || results.length === 0) {
+      console.error('Error al obtener el correo electrónico del cliente:', err);
+      return res.status(500).json({ success: false, error: 'Error obteniendo el correo electrónico' });
     }
 
-    // Obtener el ID de la venta de los resultados
-    const id_venta = results[0][0].id_venta; 
+    const correo_electronico = results[0].correo_electronico;
 
-    const queryDetalles = `CALL registrar_detalles_venta(?, ?, ?, ?, ?)`;
-    
-    const detallesPromises = carrito.map(producto => {
-      const detalle = {
-        producto_id: producto.id_producto,
-        precio_unitario: producto.precio_unitario,
-        cantidad_total: producto.cantidad,
-        subtotal: producto.precio_unitario * producto.cantidad, // Calcula el subtotal
-      };
-      return new Promise((resolve, reject) => {
-        connection.query(queryDetalles, [id_venta, detalle.producto_id, detalle.precio_unitario, detalle.cantidad_total, detalle.subtotal], (err, results) => {
-          if (err) {
-            console.error('Error registrando los detalles de la venta:', err);
-            reject(err);
-          } else {
-            resolve(results);
-          }
+    const queryVenta = `CALL registrar_venta(?, ?, ?, ?)`;
+    connection.query(queryVenta, [metodo_pago, precio_total, correo_electronico, cliente_id], (err, results) => {
+      if (err) {
+        console.error('Error registrando la venta:', err);
+        return res.status(500).json({ success: false, error: err });
+      }
+
+      const id_venta = results[0][0].id_venta;
+
+      const queryDetalles = `CALL registrar_detalles_venta(?, ?, ?, ?, ?)`;
+      const detallesPromises = carrito.map(producto => {
+        const detalle = {
+          producto_id: producto.id_producto,
+          precio_unitario: producto.precio_unitario,
+          cantidad_total: producto.cantidad,
+          subtotal: producto.precio_unitario * producto.cantidad,
+        };
+        return new Promise((resolve, reject) => {
+          connection.query(queryDetalles, [id_venta, detalle.producto_id, detalle.precio_unitario, detalle.cantidad_total, detalle.subtotal], (err, results) => {
+            if (err) {
+              console.error('Error registrando los detalles de la venta:', err);
+              reject(err);
+            } else {
+              resolve(results);
+            }
+          });
         });
       });
-    });
 
-    // Esperar a que todos los detalles se registren
-    Promise.all(detallesPromises)
-      .then(() => res.json({ success: true, id_venta })) // Devuelve el ID de la venta
-      .catch(err => res.status(500).json({ success: false, error: err }));
+      Promise.all(detallesPromises)
+        .then(() => res.json({ success: true, id_venta }))
+        .catch(err => res.status(500).json({ success: false, error: err }));
+    });
   });
 });
 
