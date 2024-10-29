@@ -65,9 +65,6 @@ const MisVentas = () => {
     }
   }, [userId]);
 
-  const enviarDetallesPorCorreo = async (venta) => {
-    // (Código de esta función se mantiene igual)
-  };
 
   const toggleDetallesVenta = (ventaId) => {
     if (ventaSeleccionada === ventaId) {
@@ -171,12 +168,7 @@ const MisVentas = () => {
                                   <strong>${parseFloat(venta.precio_total).toFixed(2)}</strong>
                                 </td>
                                 <td colSpan={5} style={{ textAlign: 'left' }}>
-                                  <button 
-                                    className="btn btn-success" 
-                                    onClick={() => enviarDetallesPorCorreo(venta)}
-                                  >
-                                    Detalles por Correo
-                                  </button>
+                                  
                                 </td>
                               </tr>
                             </tbody>

@@ -584,6 +584,55 @@ app.post('/registrarVenta', (req, res) => {
   });
 });
 
+// Endpoint para verificar el stock de un producto
+app.get('/verificarStock/:id_producto', (req, res) => {
+  const { id_producto } = req.params;
+
+  // Consulta para obtener la cantidad de stock actual del producto
+  const query = 'SELECT cantidad_producto, estado FROM Producto WHERE id_producto = ?';
+
+  connection.query(query, [id_producto], (err, results) => {
+    if (err) {
+      console.error('Error al consultar el stock:', err);
+      return res.status(500).json({ error: 'Error al consultar el stock' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'Producto no encontrado' });
+    }
+
+    const { cantidad_producto, estado } = results[0];
+
+    // Verificar si el stock está por debajo de un umbral mínimo
+    const umbralMinimo = 2; // Define el umbral mínimo que deseas
+    const stockData = {
+      cantidad_producto,
+      estado,
+      alerta_baja_stock: cantidad_producto < umbralMinimo,
+    };
+
+    // Enviar una alerta en caso de baja de stock
+    if (stockData.alerta_baja_stock) {
+      console.warn(`Alerta: el producto con ID ${id_producto} tiene bajo stock.`);
+      
+      // Lógica para enviar una alerta al jefe de producción usando el endpoint
+      axios.post('http://localhost:5000/enviar-alerta-baja-stock', {
+        id_producto: id_producto,
+        cantidad_actual: cantidad_producto,
+        mensaje: `El producto con ID ${id_producto} tiene bajo stock. Cantidad actual: ${cantidad_producto}.`
+      })
+      .then(() => {
+        console.log('Correo de alerta de bajo stock enviado al jefe de producción.');
+      })
+      .catch(correoErr => {
+        console.error('Error al enviar el correo de alerta:', correoErr);
+      });
+    }
+
+    res.json(stockData);
+  });
+});
+
 
 // REGISTRAR DOMICILIO
 app.post('/registrarDomicilio', (req, res) => {

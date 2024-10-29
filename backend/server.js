@@ -677,71 +677,97 @@ app.post("/enviar-detalle-venta", async (req, res) => {
         res.status(500).json({ message: "Error en el proceso de envío." });
     }
 });
-
 // ENDPOINT PARA ENVIAR ALERTA STOCK A JEFE DE PRODUCCION
-app.post("/enviar-alerta-stock-bajo", async (req, res) => {
-    try {
-        // Consulta para obtener productos con stock bajo y el correo del jefe de producción
-        const query = `
-            SELECT 
-                p.nombre,
-                p.cantidad,
-                u.correo_electronico
-            FROM 
-                Producto p
-            JOIN 
-                Usuario u ON u.rol = 'jefe de produccion'
-            WHERE 
-                p.cantidad <= 0;  // Cambia el valor aquí si deseas otro umbral
-        `;
-        
-        connection.query(query, (error, resultados) => {
-            if (error) {
-                console.error("Error al consultar la cantidad de productos y correo:", error);
-                return res.status(500).json({ message: "Error al consultar la cantidad de productos." });
-            }
+app.post("/enviar-alerta-baja-stock", (req, res) => {
+    const { id_producto, cantidad_actual } = req.body;
 
-            // Si no hay productos con stock bajo
-            if (resultados.length === 0) {
-                return res.status(404).json({ message: "No hay productos con bajo stock." });
-            }
+    console.log("ID del producto:", id_producto);
+    console.log("Cantidad actual:", cantidad_actual);
 
-            // Suponiendo que hay un solo jefe de producción
-            const correoJefeProduccion = resultados[0].correo_electronico; 
-            const productosBajoStock = resultados.map(prod => `${prod.nombre} - Cantidad restante: ${prod.cantidad}`).join('<br>');
+    const query = `
+        SELECT 
+            p.nombre,
+            p.imagen,
+            u.correo_electronico
+        FROM 
+            Producto p
+        JOIN 
+            Usuario u ON u.rol = 'jefe de produccion'
+        WHERE 
+            p.id_producto = ?;
+    `;
 
-            // Configuración del correo
-            const jefeProduccionMailOptions = {
-                from: "quimiap.1999.quimicos@gmail.com",
-                to: correoJefeProduccion,
-                subject: "Alerta: Stock Bajo de Productos",
-                html: `
-                    <div>
-                        <h2>Alerta de Stock Bajo</h2>
-                        <p>Los siguientes productos están por debajo del nivel de stock:</p>
-                        <p>${productosBajoStock}</p>
-                        <p>Es necesario reponer el stock de estos productos lo antes posible.</p>
+    connection.query(query, [id_producto], (error, resultados) => {
+        if (error) {
+            console.error("Error al consultar el producto y correo:", error);
+            return res.status(500).json({ message: "Error al consultar el producto." });
+        }
+
+        console.log("Resultados de la consulta:", resultados);
+
+        if (resultados.length === 0) {
+            console.warn("No se encontró jefe de producción o el producto no existe.");
+            return res.status(404).json({ message: "Producto no encontrado o sin jefe de producción asociado." });
+        }
+
+        const correoJefeProduccion = resultados[0].correo_electronico;
+
+        // Usamos map para crear el contenido de la tabla
+        const productosHtml = resultados.map(prod => `
+            <tr>
+                <td style="padding: 10px; border-bottom: 1px solid #ddd;">${prod.nombre}</td>
+                <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                    <img src="${prod.imagen}" alt="Producto" style="width: 50px; height: auto;" />
+                </td>
+                <td style="padding: 10px; border-bottom: 1px solid #ddd;">${cantidad_actual}</td>
+            </tr>
+        `).join('');
+
+        const jefeProduccionMailOptions = {
+            from: "quimiap.1999.quimicos@gmail.com",
+            to: correoJefeProduccion,
+            subject: "Alerta: Stock Bajo de Producto",
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px; background-color: #f9f9f9; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+                            <img src="https://i.ibb.co/dbTBHkz/LOGO-JEFE-DE-PRODUCCI-N.jpg" alt="Logo Quimiap" style="max-width: 10%; height: auto; border-radius: 50%; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); margin-right: 10px;"/>
+                            <p style="color: #555; font-size: 20px; margin: 0; display: flex; align-items: center;">Tu tienda de productos químicos de confianza</p>
+                        </div>
                     </div>
-                `,
-            };
+                    <h2 style="color: #28a745; text-align: center;">Alerta de Stock Bajo</h2>
+                    <p>El siguiente producto está por debajo del nivel de stock:</p>
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                        <thead>
+                            <tr style="background-color: #f2f2f2;">
+                                <th style="padding: 10px; border-bottom: 1px solid #ddd; color: #28a745;">Producto</th>
+                                <th style="padding: 10px; border-bottom: 1px solid #ddd; color: #28a745;">Imagen</th>
+                                <th style="padding: 10px; border-bottom: 1px solid #ddd; color: #28a745;">Cantidad Actual</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${productosHtml}
+                        </tbody>
+                    </table>
+                    <p style="color: #28a745;">Es necesario reponer el stock de estos productos lo antes posible.</p>
+                    <p style="color: #555; font-size: 16px; text-align: center; margin-top: 20px;">¡Gracias por confiar en nosotros!</p>
+                    <p style="text-align: center; font-size: 12px; color: #888;">© 2024 Quimiap. Todos los derechos reservados.</p>
+                </div>
+            `,
+        };
 
-            // Enviar correo al jefe de producción
-            transporter.sendMail(jefeProduccionMailOptions, (error, info) => {
-                if (error) {
-                    console.error("Error al enviar el correo:", error);
-                    return res.status(500).json({ message: "Error al enviar el correo." });
-                }
+        // Enviar el correo
+        transporter.sendMail(jefeProduccionMailOptions, (error, info) => {
+            if (error) {
+                console.error("Error al enviar el correo:", error);
+                return res.status(500).json({ message: "Error al enviar el correo." });
+            }
 
-                res.status(200).json({ message: "Alerta de stock bajo enviada exitosamente." });
-            });
+            console.log("Correo enviado:", info.response);
+            res.status(200).json({ message: "Alerta de stock bajo enviada exitosamente." });
         });
-    } catch (error) {
-        console.error("Error al enviar la alerta de stock bajo:", error);
-        res.status(500).json({ message: "Error al enviar la alerta de stock bajo." });
-    }
+    });
 });
-
-
 
 
 // Iniciar el servidor con Express
