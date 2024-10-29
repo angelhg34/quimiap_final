@@ -498,48 +498,62 @@ const handleKeyPress = (e) => {
                   <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" />
                 </div>
                 <div className="modal-body">
-                  <form>
-                    {/* Formulario de registro */}
-                    <div className="mb-3">
-                      <label htmlFor="tipo_doc" className="form-label">Tipo de Documento</label>
-                      <select className="form-select" id="tipo_doc" value={formData.tipo_doc} onChange={handleTipoDocChange} required>
-                        <option value="" disabled>Selecciona una opción</option>
-                        <option value="cedula extranjeria">CE</option>
-                        <option value="tarjeta de identidad">TI</option>
-                        <option value="cedula de ciudadania">CC</option>
-                        </select>
-                        </div>
-                    <div className="mb-3">
-                      <label htmlFor="num_doc" className="form-label">Nº Identificación</label>
-                      <input type="number" className="form-control" id="num_doc" placeholder="Ingrese Nº Identificación" value={formData.num_doc} onChange={handleIdentificacionChange} required />
-                    </div>
-                    <div className="mb-3">
-                      <label htmlFor="nombres" className="form-label">Nombres</label>
-                      <input type="text" className="form-control" id="nombres" placeholder="Ingrese Nombres" value={formData.nombres} onChange={handleInputChange} onKeyPress={handleNameKeyPress} required/>
-                    </div>
-                    <div className="mb-3">
-                      <label htmlFor="apellidos" className="form-label">Apellidos</label>
-                      <input type="text" className="form-control" id="apellidos" placeholder="Ingrese Apellidos" value={formData.apellidos} onChange={handleInputChange} onKeyPress={handleKeyPress}required />
-                    </div>
-                    <div className="mb-3">
-                      <label htmlFor="correo_electronico" className="form-label">Correo Electrónico</label>
-                      <input type="email" className="form-control" id="correo_electronico" placeholder="Ingrese Correo Electrónico" value={formData.correo_electronico} onChange={handleInputChange}required />
-                    </div>
-                    <div className="mb-3">
-                      <label htmlFor="telefono" className="form-label">Número Celular</label>
-                      <input type="number" className="form-control" id="telefono" name="telefono" placeholder="Ingrese Número Celular" value={formData.telefono} onChange={handleInputChange} required/>
-                      {phoneError && <div className="error-message">{phoneError}</div>}
-                    </div>
-                    <div className="mb-3">
-                      <label htmlFor="rol" className="form-label">Rol</label>
-                      <select className="form-select" id="rol" value={formData.rol} onChange={handleInputChange} required>
-                        <option value="" disabled>Selecciona una opción</option>
-                        <option value="domiciliario">Domiciliario</option>
-                        <option value="jefe de produccion">Jf Producción</option>
-                        <option value="Gerente">Gerente</option>
-                        </select>
-                </div>
-              </form>
+                 <form>
+  {/* Primera fila */}
+  <div className="row">
+    <div className="col-md-6 mb-3">
+      <label htmlFor="tipo_doc" className="form-label">Tipo de Documento</label>
+      <select className="form-select" id="tipo_doc" value={formData.tipo_doc} onChange={handleTipoDocChange} required>
+        <option value="" disabled>Selecciona una opción</option>
+        <option value="cedula extranjeria">CE</option>
+        <option value="tarjeta de identidad">TI</option>
+        <option value="cedula de ciudadania">CC</option>
+      </select>
+    </div>
+    <div className="col-md-6 mb-3">
+      <label htmlFor="num_doc" className="form-label">Nº Identificación</label>
+      <input type="number" className="form-control" id="num_doc" placeholder="Ingrese Nº Identificación" value={formData.num_doc} onChange={handleIdentificacionChange} required />
+    </div>
+  </div>
+
+  {/* Segunda fila */}
+  <div className="row">
+    <div className="col-md-6 mb-3">
+      <label htmlFor="nombres" className="form-label">Nombres</label>
+      <input type="text" className="form-control" id="nombres" placeholder="Ingrese Nombres" value={formData.nombres} onChange={handleInputChange} onKeyPress={handleNameKeyPress} required />
+    </div>
+    <div className="col-md-6 mb-3">
+      <label htmlFor="apellidos" className="form-label">Apellidos</label>
+      <input type="text" className="form-control" id="apellidos" placeholder="Ingrese Apellidos" value={formData.apellidos} onChange={handleInputChange} onKeyPress={handleKeyPress} required />
+    </div>
+  </div>
+
+  {/* Tercera fila */}
+  <div className="row">
+    <div className="col-md-6 mb-3">
+      <label htmlFor="correo_electronico" className="form-label">Correo Electrónico</label>
+      <input type="email" className="form-control" id="correo_electronico" placeholder="Ingrese Correo Electrónico" value={formData.correo_electronico} onChange={handleInputChange} required />
+    </div>
+    <div className="col-md-6 mb-3">
+      <label htmlFor="telefono" className="form-label">Número Celular</label>
+      <input type="number" className="form-control" id="telefono" name="telefono" placeholder="Ingrese Número Celular" value={formData.telefono} onChange={handleInputChange} required />
+      {phoneError && <div className="error-message">{phoneError}</div>}
+    </div>
+  </div>
+
+  {/* Cuarta fila */}
+  <div className="row">
+    <div className="col-md-6 mb-3">
+      <label htmlFor="rol" className="form-label">Rol</label>
+      <select className="form-select" id="rol" value={formData.rol} onChange={handleInputChange} required>
+        <option value="" disabled>Selecciona una opción</option>
+        <option value="domiciliario">Domiciliario</option>
+        <option value="jefe de produccion">Jf Producción</option>
+        <option value="Gerente">Gerente</option>
+      </select>
+    </div>
+  </div>
+</form>
             </div>
                 <div className="modal-footer">
                   <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" onClick={resetForm}>Cerrar</button>

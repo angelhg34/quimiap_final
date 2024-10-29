@@ -327,61 +327,74 @@ const handleSetInactiveProduct = async (id_producto) => {
                 <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" /></div>
               <div className="modal-body">
                 <form>
-                  {/* Formulario de registro */}
-                  <div className="mb-3">
-                    <label htmlFor="nombre" className="form-label">Nombre</label>
-                    <input type="text" className="form-control" id="nombre" placeholder="Ingrese nombre del producto" value={formData.nombre} onChange={handleInputChange} />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="descripcion" className="form-label">Descripción</label>
-                    <input type="text" className="form-control" id="descripcion" placeholder="Ingrese descripción del producto" value={formData.descripcion} onChange={handleInputChange} />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Imagen (URL)</label>
-                    <input
-                      type="text" className="form-control" id="imagen" value={formData.imagen} onChange={handleInputChange} />
-                  </div>
-                  <div className="mb-3">
-            <label className="form-label">Categoría</label>
-            <select
-              className="form-control"
-              id="categoria_id"
-              value={formData.categoria_id}
-              onChange={handleInputChange}
-            >
-              <option selected disabled value="">Selecciona una categoría</option>
-              {categorias.map((categoria) => (
-                <option key={categoria.id_categoria} value={categoria.id_categoria}>
-                  {categoria.nombre_categoria}
-                </option>
-              ))}
-            </select>
-          </div>
-                  <div className="mb-3">
-                    <label htmlFor="composicion" className="form-label">Composición</label>
-                    <input type="text" className="form-control" id="composicion" placeholder="Ingrese composición del producto" value={formData.composicion} onChange={handleInputChange} />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="contenido_neto" className="form-label">Contenido Neto</label>
-                    <input type="text" className="form-control" id="contenido_neto" placeholder="Ingrese contenido neto del producto" value={formData.contenido_neto} onChange={handleInputChange} />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="usos" className="form-label">Usos</label>
-                    <input type="text" className="form-control" id="usos" placeholder="Ingrese usos del producto" value={formData.usos} onChange={handleInputChange} onKeyPress={handleKeyPress} />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="advertencias" className="form-label">Advertencias</label>
-                    <input type="text" className="form-control" id="advertencias" placeholder="Ingrese advertencias del producto" value={formData.advertencias} onChange={handleInputChange} />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="cantidad" className="form-label">Cantidad</label>
-                    <input type="number" className="form-control" id="cantidad_producto" placeholder="Ingrese la cantidad a ingresar" value={formData.cantidad_producto} onChange={handleInputChange} />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="precio_unitario" className="form-label">Precio Unitario</label>
-                    <input type="number" className="form-control" id="precio_unitario" placeholder="Ingrese precio unitario del producto" value={formData.precio_unitario} onChange={handleInputChange} />
-                  </div>
-                </form>
+  {/* Primera fila */}
+  <div className="row">
+    <div className="col-md-6 mb-3">
+      <label htmlFor="nombre" className="form-label">Nombre</label>
+      <input type="text" className="form-control" id="nombre" placeholder="Ingrese nombre del producto" value={formData.nombre} onChange={handleInputChange} />
+    </div>
+    <div className="col-md-6 mb-3">
+      <label htmlFor="descripcion" className="form-label">Descripción</label>
+      <input type="text" className="form-control" id="descripcion" placeholder="Ingrese descripción del producto" value={formData.descripcion} onChange={handleInputChange} />
+    </div>
+  </div>
+
+  {/* Segunda fila */}
+  <div className="row">
+    <div className="col-md-6 mb-3">
+      <label className="form-label">Imagen (URL)</label>
+      <input type="text" className="form-control" id="imagen" placeholder='ingrese el url de la imagen' value={formData.imagen} onChange={handleInputChange} />
+    </div>
+    <div className="col-md-6 mb-3">
+      <label className="form-label">Categoría</label>
+      <select className="form-control" id="categoria_id" value={formData.categoria_id} onChange={handleInputChange}>
+        <option selected disabled value="">Selecciona una categoría</option>
+        {categorias.map((categoria) => (
+          <option key={categoria.id_categoria} value={categoria.id_categoria}>
+            {categoria.nombre_categoria}
+          </option>
+        ))}
+      </select>
+    </div>
+  </div>
+
+  {/* Tercera fila */}
+  <div className="row">
+    <div className="col-md-6 mb-3">
+      <label htmlFor="composicion" className="form-label">Composición</label>
+      <input type="text" className="form-control" id="composicion" placeholder="Ingrese composición del producto" value={formData.composicion} onChange={handleInputChange} />
+    </div>
+    <div className="col-md-6 mb-3">
+      <label htmlFor="contenido_neto" className="form-label">Contenido Neto</label>
+      <input type="text" className="form-control" id="contenido_neto" placeholder="Ingrese contenido neto del producto" value={formData.contenido_neto} onChange={handleInputChange} />
+    </div>
+  </div>
+
+  {/* Cuarta fila */}
+  <div className="row">
+    <div className="col-md-6 mb-3">
+      <label htmlFor="usos" className="form-label">Usos</label>
+      <input type="text" className="form-control" id="usos" placeholder="Ingrese usos del producto" value={formData.usos} onChange={handleInputChange} onKeyPress={handleKeyPress} />
+    </div>
+    <div className="col-md-6 mb-3">
+      <label htmlFor="advertencias" className="form-label">Advertencias</label>
+      <input type="text" className="form-control" id="advertencias" placeholder="Ingrese advertencias del producto" value={formData.advertencias} onChange={handleInputChange} />
+    </div>
+  </div>
+
+  {/* Quinta fila */}
+  <div className="row">
+    <div className="col-md-6 mb-3">
+      <label htmlFor="cantidad" className="form-label">Cantidad</label>
+      <input type="number" className="form-control" id="cantidad_producto" placeholder="Ingrese la cantidad a ingresar" value={formData.cantidad_producto} onChange={handleInputChange} />
+    </div>
+    <div className="col-md-6 mb-3">
+      <label htmlFor="precio_unitario" className="form-label">Precio Unitario</label>
+      <input type="number" className="form-control" id="precio_unitario" placeholder="Ingrese precio unitario del producto" value={formData.precio_unitario} onChange={handleInputChange} />
+    </div>
+  </div>
+</form>
+
               </div>
               <div className="modal-footer">
                 <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" onClick={resetForm}>Cerrar</button>
