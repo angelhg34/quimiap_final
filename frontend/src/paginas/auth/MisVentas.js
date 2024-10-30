@@ -3,7 +3,10 @@ import axios from 'axios';
 import Header from '../../componentes/header1';
 import Footer from '../../componentes/footer';
 import '../../styles/MisVentas.css';
-import Swal from 'sweetalert2';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+// import Swal from 'sweetalert2';
+
 
 const MisVentas = () => {
   const [ventas, setVentas] = useState([]);
@@ -65,6 +68,63 @@ const MisVentas = () => {
     }
   }, [userId]);
 
+  const descargarFactura = (venta) => {
+    const doc = new jsPDF();
+  
+    // Logo de la empresa
+    const imgLogo = 'https://i.ibb.co/dbTBHkz/LOGO-JEFE-DE-PRODUCCI-N.jpg';
+  
+    // Datos de la empresa
+    doc.addImage(imgLogo, 'PNG', 10, 10, 40, 40); // Posición y tamaño del logo
+    doc.setFontSize(12);
+    doc.text('QUMIAP', 60, 20);
+    doc.text('Ubicada en el Barrio Santa Elenita', 60, 28);
+    doc.text('NIT: 800.149.695-1', 60, 36);
+  
+    // Ajuste de posición para los datos de la factura
+    let posY = 50; // Nueva posición más cercana
+  
+    // Datos de la factura
+    doc.setFontSize(10);
+    doc.setFillColor(200, 200, 200);
+    doc.rect(10, posY, 190, 10, 'F'); // Fondo gris para el título
+    doc.setTextColor(0, 0, 0);
+    doc.text('Datos de la Factura', 15, posY + 7);
+  
+    posY += 15; // Avanza la posición `y` para los detalles de la factura
+  
+    doc.setFontSize(10);
+    doc.text(`N° de Factura: ${venta.id_venta}`, 15, posY);
+    doc.text(`Fecha de Emisión: ${venta.fecha_venta}`, 80, posY);
+    doc.text(`Total a Pagar: $${venta.precio_total.toFixed(2)}`, 15, posY + 8);
+  
+    // Avanza la posición `y` para la tabla de detalles
+    posY += 15;
+  
+    // Tabla de detalles de venta
+    const detalles = venta.SaleDetails.map(detalle => [
+      detalle.nombre_producto,
+      detalle.cantidad_total,
+      `$${detalle.precio_unitario.toFixed(2)}`,
+      `$${detalle.subtotal.toFixed(2)}`
+    ]);
+  
+    doc.autoTable({
+      startY: posY,
+      head: [['Descripción', 'Cantidad', 'Precio Unitario', 'Subtotal']],
+      body: detalles,
+      theme: 'grid',
+      styles: { fontSize: 10 }
+    });
+  
+    // Total en la factura
+    doc.setFontSize(12);
+    doc.text(`Total: $${venta.precio_total.toFixed(2)}`, 150, doc.lastAutoTable.finalY + 10);
+  
+    // Generar y descargar el PDF
+    doc.save(`Factura_${venta.id_venta}.pdf`);
+  };
+  
 
   const toggleDetallesVenta = (ventaId) => {
     if (ventaSeleccionada === ventaId) {
@@ -126,10 +186,16 @@ const MisVentas = () => {
                       <td>{venta.estado}</td>
                       <td>
                         <button 
-                          className="btn btn-success" 
+                          className="btn btn-success me-2" 
                           onClick={() => toggleDetallesVenta(venta.id_venta)}
                         >
                           {ventaSeleccionada === venta.id_venta ? 'Ocultar detalles' : 'Ver detalles'}
+                        </button>
+                        <button 
+                          className="btn btn-danger" 
+                          onClick={() => descargarFactura(venta)}
+                          >
+                          Descargar Factura
                         </button>
                       </td>
                     </tr>
