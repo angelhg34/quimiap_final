@@ -17,7 +17,7 @@
   "scripts": {
     "start-api": "json-server --watch trabajo.json --port 4000",
     "start-email-server": "node server.js",
-    "start": "concurrently \"node server.js\" \"node bdserver.js\""
+    "start": "concurrently \"node server.js\" \"node dbserver.js\""
   },
   "devDependencies": {
     "concurrently": "^9.1.0"
