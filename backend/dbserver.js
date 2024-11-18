@@ -6,6 +6,8 @@ const app = express();
 const port = 4001;
 const bcrypt = require('bcrypt');
 const session = require('express-session');
+require('dotenv').config();
+
 
 
 // Configuración de express-session
@@ -25,10 +27,11 @@ app.use(express.json()); // Permite el parsing de JSON en las solicitudes
 
 // Conectar a la base de datos
 const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'r1234',
-  database: 'quimiap'
+  host: process.env.MYSQLHOST,
+  user: process.env.MYSQLUSER,
+  password: process.env.MYSQLPASSWORD,
+  database: process.env.MYSQLDATABASE,
+  port: process.env.MYSQLPORT
 });
 
 connection.connect((err) => {

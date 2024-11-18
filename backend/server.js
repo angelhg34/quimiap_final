@@ -10,6 +10,7 @@ const fs = require('fs');
 const bcrypt = require('bcrypt');
 const mysql = require('mysql2');
 const crypto = require('crypto');
+require('dotenv').config();
 // Asegúrate de incluir esto
 // Creando una nueva aplicación Express.
 const app = express();
@@ -25,10 +26,11 @@ app.set("views", path.join(__dirname, "views"));
 
 // Conectar a la base de datos
 const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'r1234',
-    database: 'quimiap'
+    host: process.env.MYSQLHOST,
+    user: process.env.MYSQLUSER,
+    password: process.env.MYSQLPASSWORD,
+    database: process.env.MYSQLDATABASE,
+    port: process.env.MYSQLPORT
   });
   
   connection.connect((err) => {
@@ -40,7 +42,7 @@ const connection = mysql.createConnection({
   });
 // Configuración de CORS para permitir solicitudes desde el puerto 4000
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:4001'], // Puedes restringir esto a 'http://localhost:4000' si prefieres, o para todos:'*'
+    origin: '*',//['http://localhost:3000', 'http://localhost:4001'],  Puedes restringir esto a 'http://localhost:4000' si prefieres, o para todos:'*'
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
 }));
