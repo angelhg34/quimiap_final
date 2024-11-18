@@ -37,7 +37,7 @@ const UsuariosAdmin = () => {
   // Fetch users from the API
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('http://localhost:4001/usuarios');
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/usuarios`);
       setUsers(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -212,7 +212,7 @@ const handleIdentificacionChange = (event) => {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    await axios.put(`http://localhost:4001/actualizarUser/${currentUser.id}`, formData);
+                    await axios.put(`${process.env.REACT_APP_BACKEND_URL}/actualizarUser/${currentUser.id}`, formData);
                     fetchUsers();
                     resetForm();
                     setIsEditing(false);
@@ -250,7 +250,7 @@ const handleIdentificacionChange = (event) => {
     } else {
         try {
             // Registrar al usuario con estado "Pendiente"
-            const response = await axios.post('http://localhost:4001/registrarUser', {
+            const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/registrarUser`, {
                 ...formData,
                 estado: 'Pendiente'
             });
@@ -315,7 +315,7 @@ const handleSetInactiveUser = async (id_usuario) => {
   if (confirmInactive.isConfirmed) {
       try {
           // Llamar al procedimiento almacenado para cambiar el estado
-          await axios.put(`http://localhost:4001/cambiarEstadoUsuario/${id_usuario}`, {
+          await axios.put(`${process.env.REACT_APP_BACKEND_URL}/cambiarEstadoUsuario/${id_usuario}`, {
               estado: 'inactivo' // Cambiar a 'inactivo'
           });
 
