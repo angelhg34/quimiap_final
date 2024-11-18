@@ -101,7 +101,7 @@ const Inicio_registro = () => {
         
         try {
             // Verificar si el correo ya está registrado
-            const checkResponse = await axios.get(`http://localhost:4001/usuarios/correo/${encodeURIComponent(formData.correo_electronico)}`);
+            const checkResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/usuarios/correo/${encodeURIComponent(formData.correo_electronico)}`);
         
             if (checkResponse.data.length > 0) {
                 // Si el correo ya está en la base de datos, mostrar la alerta
@@ -116,7 +116,7 @@ const Inicio_registro = () => {
             }
             // Verificar si el número de documento ya existe
     try {
-        const checkResponse = await axios.get(`http://localhost:4001/usuarios/documento/${encodeURIComponent(formData.num_doc)}`);
+        const checkResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/usuarios/documento/${encodeURIComponent(formData.num_doc)}`);
 
         if (checkResponse.data.length > 0) {
             // Si el número de documento ya está en la base de datos, mostrar la alerta
@@ -145,7 +145,7 @@ const Inicio_registro = () => {
             // const hashedPassword = bcrypt.hashSync(formData.contrasena, 10);
         
             // Si el correo no existe, proceder con el registro
-            const response = await axios.post("http://localhost:4001/registrarUser", {
+            const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/registrarUser`, {
                 ...formData,
                 contrasena: formData.contrasena,
                 estado: "Pendiente" // Cambia el estado a pendiente
@@ -278,7 +278,7 @@ const Inicio_registro = () => {
     
         try {
             // Realizar una solicitud POST a la API para el inicio de sesión
-            const response = await axios.post("http://localhost:4001/login", {
+            const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/login`, {
                 correo_electronico: email,
                 contrasena: password
             });
@@ -475,7 +475,7 @@ const Inicio_registro = () => {
         if (email) {
             try {
                 // Verificar si el correo existe en la base de datos
-                const checkResponse = await axios.get(`http://localhost:4001/usuarios/correo/${encodeURIComponent(email)}`);
+                const checkResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/usuarios/correo/${encodeURIComponent(email)}`);
                 
                 // Si el usuario no existe, se lanzará un error
                 if (!checkResponse.data || checkResponse.data.length === 0) {
