@@ -44,7 +44,7 @@ const VentasCliente = () => {
 
   const actualizarCantidadProducto = async (id_producto, cantidadComprada) => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/Producto/${id_producto}`);
+      const response = await axios.get(`/Producto/${id_producto}`);
       const productoActual = response.data;
       
       const nuevaCantidad = productoActual.cantidad_producto - cantidadComprada; // Cambiado a cantidad_producto
