@@ -27,24 +27,24 @@ const VentasCliente = () => {
   const carritoItems = JSON.parse(localStorage.getItem('carrito')) || [];
 
   useEffect(() => {
-    const fetchCliente = async () => {
+    const fetchData = async () => {
       try {
+        // Fetch cliente
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/usuario/${clienteId}`);
         console.log("Backend URL:", process.env.REACT_APP_BACKEND_URL);
         console.log("Cliente ID:", clienteId);
-        console.log(response)
+        console.log("Response cliente:", response);
         setCliente(response.data.usuario);
+
+        // Fetch carrito (si ya tienes carritoItems, no es necesario fetch asincrónico)
+        setCarrito(carritoItems);
       } catch (error) {
         console.error('Error al obtener datos del cliente:', error);
       }
     };
 
-    const fetchCarrito = () => {
-      setCarrito(carritoItems);
-    };
+    fetchData(); // Llamada única para ambos casos
 
-    fetchCliente();
-    fetchCarrito();
   }, [clienteId, carritoItems]);
 
   const actualizarCantidadProducto = async (id_producto, cantidadComprada) => {
