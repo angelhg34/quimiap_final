@@ -38,7 +38,7 @@ const JfProduccion = () => {
 
   const fetchProductos = async () => {
     try {
-      const response = await axios.get('http://localhost:4001/Producto');
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/Producto`);
       setProductos(response.data);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -47,7 +47,7 @@ const JfProduccion = () => {
 
   const fetchCategorias = async () => {
     try {
-      const response = await axios.get('http://localhost:4001/categoria');
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/categoria`);
       setCategorias(response.data); // Asumiendo que la respuesta tiene la estructura esperada
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -94,7 +94,7 @@ const JfProduccion = () => {
     }
 
     try {
-      await axios.post('http://localhost:4001/registrarProducto', formData);
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/registrarProducto`, formData);
       fetchProductos(); // Actualizar la lista de productos
       resetForm();
       Swal.fire({
@@ -141,7 +141,7 @@ const handleUpdateProduct = async () => {
   }
 
   try {
-    await axios.put('http://localhost:4001/actualizarProducto', { 
+    await axios.put(`${process.env.REACT_APP_BACKEND_URL}/actualizarProducto`, { 
       ...formData, 
       id_producto: currentProduct.id_producto // Asegúrate de pasar el ID del producto que se está editando
     });
@@ -181,7 +181,7 @@ const handleSetInactiveProduct = async (id_producto) => {
 
   if (confirmInactive.isConfirmed) {
       try {
-          const response = await axios.put(`http://localhost:4001/descontinuarProducto/${id_producto}`, {
+          const response = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/descontinuarProducto/${id_producto}`, {
           estado: 'descontinuado'
         });
         console.log("datos", response.data)
@@ -240,7 +240,7 @@ const handleSetInactiveProduct = async (id_producto) => {
     // Obtener la lista de productos actualizada
     const fetchProductos = async () => {
       try {
-        const response = await axios.get('http://localhost:4001/Producto');
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/Producto`);
         setProductos(response.data);
       } catch (error) {
         console.error('Error al obtener los productos:', error);

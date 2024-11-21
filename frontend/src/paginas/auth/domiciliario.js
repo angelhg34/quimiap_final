@@ -17,7 +17,7 @@ const Domiciliario = () => {
   // Función para obtener domicilios de la API filtrando por el domiciliario en sesión
   const fetchDomicilios = async () => {
     try {
-      const response = await axios.get(`http://localhost:4001/domiciliosDomiciliario/${domiciliarioId}`, {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/domiciliosDomiciliario/${domiciliarioId}`, {
         params: {
           userId: domiciliarioId // Pasar el domiciliarioId como parámetro de consulta
         }
@@ -39,7 +39,7 @@ const Domiciliario = () => {
   // Función para actualizar el estado del domicilio
   const confirmarDomicilio = async (id_domicilio) => {
     try {
-      await axios.put(`http://localhost:4001/domicilio/${id_domicilio}`, {
+      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/domicilio/${id_domicilio}`, {
         estado_entrega: 'entregado' // Actualiza el estado del domicilio
       });
 

@@ -16,7 +16,7 @@ const VentasjfProduccion = () => {
   // Función para obtener VENTAS y USUARIOS de la API
   const fetchVentasUsuarios = async () => {
     try {
-      const response = await axios.get('http://localhost:4001/ventasUsuariosAdmin');
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/ventasUsuariosAdmin`);
       setVentas(response.data);
       setFilteredVentas(response.data); // Inicialmente, mostrar todas las ventas
     } catch (error) {

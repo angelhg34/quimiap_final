@@ -14,7 +14,7 @@ const DomicilioAdmin = () => {
   // Función para obtener domicilios de la API
   const fetchDomiciliosVentasUsuarios = async () => {
     try {
-      const response = await axios.get('http://localhost:4001/domiciliosVentasUsuarios');
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/domiciliosVentasUsuarios`);
       setDomicilios(response.data);
     } catch (error) {
       console.error('Error fetching domicilios, ventas y usuarios:', error);
@@ -28,7 +28,7 @@ const DomicilioAdmin = () => {
   // Función para actualizar el estado del domicilio
   const confirmarDomicilio = async (domicilioId) => {
     try {
-      await axios.patch(`http://localhost:4000/domicilio/${domicilioId}`, {
+      await axios.patch(`${process.env.REACT_APP_BACKEND_URL}/domicilio/${domicilioId}`, {
         estado: 'Entregado'
       });
 

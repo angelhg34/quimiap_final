@@ -20,7 +20,7 @@ const VentasDomiciliario = () => {
   // Función para obtener domicilios y ventas del domiciliario de la API
   const fetchDomiciliosConVentas = async (domiciliarioId) => {
     try {
-      const response = await axios.get(`http://localhost:4001/domicilios-con-ventas?domiciliario_id=${domiciliarioId}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/domicilios-con-ventas?domiciliario_id=${domiciliarioId}`);
       setVentasDomicilios(response.data);
     } catch (error) {
       console.error('Error fetching domicilios con ventas:', error);
@@ -30,7 +30,7 @@ const VentasDomiciliario = () => {
   // Función para obtener productos de la API
   const fetchProductos = async () => {
     try {
-      const response = await axios.get('http://localhost:4001/Producto');
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/Producto`);
       setProductos(response.data);
     } catch (error) {
       console.error('Error fetching productos:', error);
@@ -40,7 +40,7 @@ const VentasDomiciliario = () => {
   // Función para obtener detalles de venta de la API
   const fetchDetallesVenta = async (ventaId) => {
     try {
-      const response = await axios.get(`http://localhost:4001/SaleDetails?venta_id=${ventaId}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/SaleDetails?venta_id=${ventaId}`);
       setDetallesVenta(prev => ({
         ...prev,
         [ventaId]: response.data
