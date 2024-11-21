@@ -5,6 +5,9 @@ import Header from "../../componentes/header1";
 import Footer from "../../componentes/footer";
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
+import dotenv from 'dotenv';
+dotenv.config();
+
 
 const VentasCliente = () => {
   const [fechaVenta] = useState(new Date().toISOString().split('T')[0]);
