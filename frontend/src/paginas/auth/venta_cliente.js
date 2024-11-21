@@ -123,31 +123,31 @@ const VentasCliente = () => {
       console.log('Venta registrada con ID:', ventaId); // Verifica el ID de la venta registrada
 
       // Enviar el correo con los detalles de la venta al cliente
-      const detalleVentaResponse = await axios.post('http://localhost:5000/enviar-detalle-venta', {
-        venta_id: ventaId,
-      });
-      console.log('Correo de verificación enviado:', detalleVentaResponse.data);
+      // const detalleVentaResponse = await axios.post('http://localhost:5000/enviar-detalle-venta', {
+      //   venta_id: ventaId,
+      // });
+      // console.log('Correo de verificación enviado:', detalleVentaResponse.data);
 
       // Verificar el stock y enviar alerta si es necesario
-      for (const producto of carrito) {
-        try {
-          const stockResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/verificarStock/${producto.id_producto}`);
-          const stockData = stockResponse.data;
+      // for (const producto of carrito) {
+      //   try {
+      //     const stockResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/verificarStock/${producto.id_producto}`);
+      //     const stockData = stockResponse.data;
 
-          if (stockData.cantidad_actual < stockData.cantidad_minima) {
-            console.warn(`Stock bajo para el producto ${producto.id_producto}.`);
+      //     if (stockData.cantidad_actual < stockData.cantidad_minima) {
+      //       console.warn(`Stock bajo para el producto ${producto.id_producto}.`);
 
-            // Envía alerta de baja de stock
-            await axios.post('http://localhost:5000/enviar-alerta-baja-stock', {
-              id_producto: producto.id_producto,
-              cantidad_actual: stockData.cantidad_actual,
-            });
-            console.log('Alerta de baja de stock enviada.');
-          }
-        } catch (error) {
-          console.error(`Error al verificar el stock para el producto ${producto.id_producto}:`, error);
-        }
-      }
+      //       // Envía alerta de baja de stock
+      //       await axios.post('http://localhost:5000/enviar-alerta-baja-stock', {
+      //         id_producto: producto.id_producto,
+      //         cantidad_actual: stockData.cantidad_actual,
+      //       });
+      //       console.log('Alerta de baja de stock enviada.');
+      //     }
+      //   } catch (error) {
+      //     console.error(`Error al verificar el stock para el producto ${producto.id_producto}:`, error);
+      //   }
+      // }
 
       if (mostrarDomicilio) {
         const domicilioData = {
