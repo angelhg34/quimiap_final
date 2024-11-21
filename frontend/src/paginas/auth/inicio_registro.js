@@ -162,7 +162,7 @@ const Inicio_registro = () => {
             window.location.href = '/';
         
             // Enviar el correo de verificación
-            const verificationResponse = await axios.post('http://localhost:5000/enviar-verificacion', {
+            const verificationResponse = await axios.post('http://localhost:8080/enviar-verificacion', {
                 correo_electronico: formData.correo_electronico,
                 id: response.data.id_usuario
             });
@@ -490,7 +490,7 @@ const Inicio_registro = () => {
                 }
         
                 // Si el correo existe, enviar el correo de restablecimiento de contraseña
-                const response = await axios.post('http://localhost:5000/enviar-restablecer-contrasena', {
+                const response = await axios.post('http://localhost:8080/enviar-restablecer-contrasena', {
                     correo_electronico: email
                 });
         
