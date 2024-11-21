@@ -19,7 +19,7 @@ const Bienvenida = () => {
   
   const fetchProductos = async () => {
     try {
-      const response = await axios.get('http://localhost:4001/Producto');
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/Producto`);
       const productosDisponibles = response.data.filter(producto => producto.estado === 'disponible');
       setProductos(productosDisponibles);
       setSearchResults(productosDisponibles); // Inicializa los resultados de búsqueda con los productos disponibles
@@ -68,7 +68,7 @@ const handleSort = (type) => {
 
   const obtenerStockDelProducto = async (id_producto) => {
     try {
-      const response = await axios.get(`http://localhost:4001/productoStock/${id_producto}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/productoStock/${id_producto}`);
       return parseInt(response.data.cantidad, 10); // Devuelve la cantidad disponible del producto
     } catch (error) {
       console.error('Error al obtener el stock del producto:', error);

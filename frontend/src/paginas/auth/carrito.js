@@ -22,7 +22,7 @@ const CarritoPage = () => {
 
   const aumentarCantidad = async (id) => {
     try {
-      const response = await fetch(`http://localhost:4001/productoStock/${id}`);
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/productoStock/${id}`);
       const producto = await response.json();
         
       const productoStock = parseInt(producto.cantidad, 10);

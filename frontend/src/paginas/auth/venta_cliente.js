@@ -27,7 +27,7 @@ const VentasCliente = () => {
   useEffect(() => {
     const fetchCliente = async () => {
       try {
-        const response = await axios.get(`http://localhost:4001/usuario/${clienteId}`);
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/usuario/${clienteId}`);
         setCliente(response.data);
       } catch (error) {
         console.error('Error al obtener datos del cliente:', error);
@@ -44,14 +44,14 @@ const VentasCliente = () => {
 
   const actualizarCantidadProducto = async (id_producto, cantidadComprada) => {
     try {
-      const response = await axios.get(`http://localhost:4001/Producto/${id_producto}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/Producto/${id_producto}`);
       const productoActual = response.data;
       
       const nuevaCantidad = productoActual.cantidad_producto - cantidadComprada; // Cambiado a cantidad_producto
       const estadoProducto = nuevaCantidad <= 0 ? 'agotado' : productoActual.estado;
 
 
-      await axios.put(`http://localhost:4001/Producto/${id_producto}`, {
+      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/Producto/${id_producto}`, {
         ...productoActual,
         cantidad_producto: nuevaCantidad,
         estado: estadoProducto
@@ -64,7 +64,7 @@ const VentasCliente = () => {
 
   const asignarDomiciliario = async () => {
     try {
-      const response = await axios.get('http://localhost:4001/usuariosDomiciliarios');
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/usuariosDomiciliarios`);
       const usuarios = response.data;
   
       // Filtramos los domiciliarios
@@ -113,7 +113,7 @@ const VentasCliente = () => {
       }
   
       // Envía la información de la venta junto con los detalles
-      const ventaResponse = await axios.post('http://localhost:4001/registrarVenta', ventaData);
+      const ventaResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/registrarVenta`, ventaData);
       const ventaId = ventaResponse.data.id_venta; // Asegúrate de que esto coincida con tu respuesta
       console.log('Venta registrada con ID:', ventaId); // Verifica el ID de la venta registrada
 
@@ -126,7 +126,7 @@ const VentasCliente = () => {
       // Verificar el stock y enviar alerta si es necesario
       for (const producto of carrito) {
         try {
-          const stockResponse = await axios.get(`http://localhost:4001/verificarStock/${producto.id_producto}`);
+          const stockResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/verificarStock/${producto.id_producto}`);
           const stockData = stockResponse.data;
 
           if (stockData.cantidad_actual < stockData.cantidad_minima) {
@@ -157,7 +157,7 @@ const VentasCliente = () => {
   
         console.log('Datos de domicilio a enviar:', domicilioData); // Agrega esta línea
   
-        await axios.post('http://localhost:4001/registrarDomicilio', domicilioData);
+        await axios.post(`${process.env.REACT_APP_BACKEND_URL}/registrarDomicilio`, domicilioData);
       }
   
       Swal.fire({

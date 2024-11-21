@@ -19,7 +19,7 @@ const MisVentas = () => {
   useEffect(() => {
     const fetchVentas = async () => {
       try {
-        const response = await axios.get(`http://localhost:4001/ventasDelCliente?userId=${userId}`);
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/ventasDelCliente?userId=${userId}`);
         const ventasAgrupadas = response.data.reduce((acc, curr) => {
           const { id_venta, fecha_venta, metodo_pago, precio_total, estado, id_detalle_venta, producto_id, precio_unitario, cantidad_total, subtotal, nombre_producto, imagen_producto } = curr;
 
