@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import '../../styles/style_venta_cliente.css';
-import Header from "../../componentes/header1";
-import Footer from "../../componentes/footer";
-import Swal from 'sweetalert2';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import Footer from "../../componentes/footer";
+import Header from "../../componentes/header1";
+import '../../styles/style_venta_cliente.css';
 
 
 
@@ -30,7 +30,10 @@ const VentasCliente = () => {
     const fetchCliente = async () => {
       try {
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/usuario/${clienteId}`);
-        setCliente(response.data);
+        console.log("Backend URL:", process.env.REACT_APP_BACKEND_URL);
+        console.log("Cliente ID:", clienteId);
+        console.log(response)
+        setCliente(response.data.usuario);
       } catch (error) {
         console.error('Error al obtener datos del cliente:', error);
       }

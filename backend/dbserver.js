@@ -21,8 +21,14 @@ app.use(session({
   }
 }));
 
+const corsOptions = {
+  origin: 'https://quimiap.netlify.app', // Dominio permitido
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Métodos HTTP permitidos
+  allowedHeaders: ['Content-Type', 'Authorization'], // Cabeceras permitidas
+  credentials: true, // Permitir envío de cookies o credenciales
+};
 
-app.use(cors()); // Habilita CORS solicitudes frontend
+app.use(cors(corsOptions)); // Habilita CORS solicitudes frontend
 app.use(express.json()); // Permite el parsing de JSON en las solicitudes
 
 // Conectar a la base de datos
